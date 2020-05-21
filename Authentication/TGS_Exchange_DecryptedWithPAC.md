@@ -1,0 +1,235 @@
+```
+[*] Sending TGS-REQ ...
+
+    * MessageType :  KRB_TGS_REQ
+    * pvno :  5
+    * PaData :
+       - PA_TGS_REQ :
+          - KRB_AP_REQ :
+             - pvno :  5
+             - ApOptions :  Reserved
+             - Ticket :
+                - tkt-vno :  5
+                - Realm :  CORPLAB.LOCAL
+                - SName :
+                   - Type :  NT_SRV_INST
+                   - Name :  krbtgt
+                   - Name :  CORPLAB.LOCAL
+                - EncryptedPart :
+                   - kvno :  6
+                   - EType :  AES256_CTS_HMAC_SHA1_96
+                   - Cipher :  [krbtgtEncryptedCipher...]
+             - Authenticator :
+                - kvno :
+                - EType :  AES256_CTS_HMAC_SHA1_96
+                - Realm :  CORPLAB.LOCAL
+                - SequenceNumber :  637224720
+                - Subkey :
+                   - EType :  AES256_CTS_HMAC_SHA1_96
+                   - KeyValue :  725252D13403E4FC97E5BD621E5BBBE068C270A10F4DB9FAD549190D06A551D5
+                - CTime :  4/14/2020 2:34:36 PM +00:00
+                - CuSec :  469
+                - CName :
+                   - Type :  NT_PRINCIPAL
+                   - Name :  spnuseraes
+                - Checksum :
+                   - Type :  HMAC_SHA1_96_AES256
+                   - Checksum :  5310510EA5F79B2FCEABC874
+                - AuthorizationData :
+                - AuthenticatorVersionNumber :  5
+       - PA_PAC_OPTIONS :
+          - Flags :  BranchAware
+    * Body :
+       - KdcOptions :  RenewableOk, Canonicalize, Renewable, Forwardable
+       - Realm :  CORPLAB.LOCAL
+       - SName :
+          - Type :  NT_SRV_INST
+          - Name :  unconstrained
+          - Name :  adminstat.corplab.local
+       - Till :  9/13/2037 2:48:05 AM +00:00
+       - RTime :
+       - Nonce :  637224719
+       - EType :
+          - EncType :  AES256_CTS_HMAC_SHA1_96
+          - EncType :  AES128_CTS_HMAC_SHA1_96
+          - EncType :  RC4_HMAC_NT
+          - EncType :  RC4_HMAC_NT_EXP
+          - EncType :  RC4_HMAC_OLD_EXP
+       - EncAuthorizationData :
+       - From :
+       - AdditionalTickets :
+
+[*] Receiving TGS-REP ...
+
+    * MessageType :  KRB_TGS_REP
+    * pvno :  5
+    * PaData :
+    * CRealm :  CORPLAB.LOCAL
+    * CName :
+       - Type :  NT_PRINCIPAL
+       - Name :  spnuseraes
+    * Ticket :
+       - tkt-vno :  5
+       - Realm :  CORPLAB.LOCAL
+       - SName :
+          - Name :  unconstrained
+          - Type :  NT_SRV_INST
+       - EncryptedPart :
+          - kvno :  2
+          - EType :  RC4_HMAC_NT
+          - Cipher :  [ServiceEncryptedCipher...]
+    * Enc-Part :
+       - EType :  AES256_CTS_HMAC_SHA1_96
+       - kvno :
+       - Cipher :  [SubSessionKeyEncryptedCipher..]
+    * [Decrypted Ticket Enc-Part]:
+       - AuthTime :  4/14/2020 2:34:35 PM +00:00
+       - StartTime :  4/14/2020 2:34:36 PM +00:00
+       - EndTime :  4/15/2020 12:34:35 AM +00:00
+       - RenewTill :  4/21/2020 2:34:35 PM +00:00
+       - CRealm :  CORPLAB.LOCAL
+       - CName :
+          - Type :  NT_PRINCIPAL
+          - Name :  spnuseraes
+       - AuthorizationData :
+          - Type :  AdIfRelevant
+          - Data :  System.ReadOnlyMemory<Byte>[718]
+             - Type :  AdWin2kPac
+                - Type :  AdWin2kPac
+                - Version :  0
+                - LogonInfo :
+                   - PacType :
+                   - DomainId :
+                      - Revision :  1
+                      - IdentifierAuthority :  NTAuthority
+                      - SubAuthority :  21, 1977317821, 1772133574, 954835042
+                      - SubAuthorityCount :  4
+                   - ExtraId :
+                      - Attributes :  SE_GROUP_MANDATORY, SE_GROUP_ENABLED_BY_DEFAULT, SE_GROUP_ENABLED
+                      - Sid :  S-1-18-1
+                      - Revision :  1
+                      - IdentifierAuthority :  AuthenticationAuthority
+                      - SubAuthority :  1
+                      - SubAuthorityCount :  1
+                   - DomainSid :
+                      - Attributes :  0
+                      - Id :  954835042
+                      - Value :  S-1-5-21-1977317821-1772133574-954835042
+                   - ExtraSidCount :  1
+                   - ExtraSids :
+                      - Attributes :  0
+                      - Id :  1
+                      - Value :  S-1-18-1
+                   - GroupCount :  1
+                   - GroupId :  513
+                   - GroupIds :
+                      - Attributes :  SE_GROUP_MANDATORY, SE_GROUP_ENABLED_BY_DEFAULT, SE_GROUP_ENABLED
+                      - RelativeId :  513
+                   - GroupSid :  S-1-5-21-1977317821-1772133574-954835042-513
+                   - GroupSids :
+                      - Attributes :  SE_GROUP_MANDATORY, SE_GROUP_ENABLED_BY_DEFAULT, SE_GROUP_ENABLED
+                      - Id :  513
+                      - Value :  S-1-5-21-1977317821-1772133574-954835042-513
+                   - HomeDirectory :
+                   - HomeDrive :
+                   - KickOffTime :  1/1/0001 12:00:00 AM +00:00
+                   - LastFailedILogon :  1/1/1601 12:00:00 AM +00:00
+                   - LastSuccessfulILogon :  1/1/1601 12:00:00 AM +00:00
+                   - LogoffTime :  1/1/0001 12:00:00 AM +00:00
+                   - LogonCount :  114
+                   - LogonScript :
+                   - LogonTime :  4/14/2020 2:30:07 PM +00:00
+                   - ProfilePath :
+                   - PwdCanChangeTime :  4/13/2020 2:55:04 AM +00:00
+                   - PwdLastChangeTime :  4/12/2020 2:55:04 AM +00:00
+                   - PwdMustChangeTime :  1/1/0001 12:00:00 AM +00:00
+                   - Reserved1 :  0, 0
+                   - Reserved3 :  0
+                   - ResourceDomainId :
+                   - ResourceDomainSid :
+                   - ResourceGroupCount :  0
+                   - ResourceGroupIds :
+                   - ResourceGroups :
+                   - SubAuthStatus :  0
+                   - UserAccountControl :  ADS_UF_LOCKOUT, ADS_UF_SMARTCARD_REQUIRED
+                   - UserDisplayName :
+                   - UserFlags :  LOGON_EXTRA_SIDS
+                   - UserId :  1613
+                   - UserName :  spnuseraes
+                   - UserSessionKey :  00000000000000000000000000000000
+                   - UserSid :  S-1-5-21-1977317821-1772133574-954835042-1613
+                   - DomainName :  CORP
+                   - ServerName :  DC1
+                   - BadPasswordCount :  0
+                   - FailedILogonCount :  0
+                - ClientInformation :
+                   - PacType :  CLIENT_NAME_TICKET_INFO
+                   - ClientId :  4/14/2020 2:34:35 PM +00:00
+                   - Name :  spnuseraes
+                   - NameLength :  20
+                - KdcSignature :
+                   - PacType :  0
+                   - RODCIdentifier :  0
+                   - Signature :  AD12180A8AE4A458B9207967
+                   - SignatureData :  [...]
+                   - Type :  HMAC_SHA1_96_AES256
+                   - Validated :  False
+                   - Validator :
+                      - Validator :  PaForUserChecksum
+                      - Validator :  AD12180A8AE4A458B9207967
+                - ServerSignature :
+                   - PacType :  0
+                   - RODCIdentifier :  0
+                   - Signature :  33E5E34E9900E23502F60A2E6E4EDE9C
+                   - SignatureData :  [...]
+                   - Type :  KERB_CHECKSUM_HMAC_MD5
+                   - Validated :  False
+                   - Validator :
+                      - Validator :  PaForUserChecksum
+                      - Validator :  33E5E34E9900E23502F60A2E6E4EDE9C
+                - UpnDomainInformation :
+                   - PacType :  UPN_DOMAIN_INFO
+                   - Upn :  spnuseraes@corplab.local
+                   - UpnLength :  48
+                   - UpnOffset :  16
+                   - Domain :  CORPLAB.LOCAL
+                   - DnsDomainNameLength :  26
+                   - DnsDomainNameOffset :  64
+                - DecodingErrors :
+                - HasRequiredFields :  True
+       - CAddr :
+       - Flags :  EncryptedPreAuthentication, OkAsDelegate, PreAuthenticated, Renewable, Forwardable
+       - Key :
+          - EType :  RC4_HMAC_NT
+          - Value :  43595BD32DE7F98A03E5840106300414
+       - Transited :
+          - Type :  DomainX500Compress
+          - Contents :
+    * [Decrypted Enc-Part]:
+       - AuthTime :  4/14/2020 2:34:35 PM +00:00
+       - StartTime :  4/14/2020 2:34:36 PM +00:00
+       - EndTime :  4/15/2020 12:34:35 AM +00:00
+       - RenewTill :  4/21/2020 2:34:35 PM +00:00
+       - Nonce :  637224719
+       - Realm :  CORPLAB.LOCAL
+       - SName :
+          - Type :  NT_SRV_INST
+          - Name :  unconstrained
+          - Name :  adminstat.corplab.local
+       - EncryptedPaData :
+          - PA_SUPPORTED_ETYPES :
+             - Value : 07000000
+          - PA_PAC_OPTIONS :
+             - Flags :  BranchAware
+       - Key :
+          - EType :  RC4_HMAC_NT
+          - Value :  43595BD32DE7F98A03E5840106300414
+       - KeyExpiration :
+       - Flags :  EncryptedPreAuthentication, OkAsDelegate, PreAuthenticated, Renewable, Forwardable
+       - LastReq
+          - Type :  0
+          - Type :  4/14/2020 2:34:36 PM +00:00
+[+] Ticket successfully imported!
+[*] TGS Kirbi:
+    - doIFIjCCBR6gAwIBBaEDAgEWooIEITCCBB1hggQZMIIEFaADAgEFoQ8bDUNPUlBMQUIuTE9DQUyiMzAxoAMCAQKhKjAoGw11bmNvbnN0cmFpbmVkGxdhZG1pbnN0YXQuY29ycGxhYi5sb2NhbKOCA8YwggPCoAMCARehAwIBAqKCA7QEggOwDWhzRSVZhkTxNS2qS6mAPrDFh4cCCQRse4EoGzP/zxYaF6Qplxwq8NAIN8DqPN3/D0C5kTg8DIxhP3BzHoh0G8F5Tiix1IlfDHcSeW1mGLgorbqopw7q3e/g5YggMWybTawvmOlOA4FOgWo8lpHeRlMVHR4V/SDGBaVM5j3VsXvOyFQUQ6gjivqI7r9X3+h5yvfFtvx8fwz363Tx6SKCp0k+UmsHhsXEjfGLScTlYD+qD/ODkJ5TgzDnz53y0L5lts70eZIFb39dqJdoI3aHSXDQBoeMrOVy0Ygp+FQaHv/wclJrqalqVqGHYQWhkg+GlHAeUfgTH4Dl4z6G7IDWN/5edfwX573h0ieGwmYRNY3PgyMVvZPAh8IcIYhQGKQHXgNaIvdYdnzfKBlVE2J3RV8KS4b+mRKB5myKFh6JXmQCw+dWkZ2Lnyp8AwFSHwip3kpfaliaDd/DfbFmzNuDBbm0BFYornvR1/b70hE2YvcnS3RyPTrb0n7QyhKSvqQjAFvzGVZKPPA9/QIv5csrYAXC3DgRd5XGsLjKyVJBUaLJnla74ub/xrPw3t41F4YxzfoaORpDSceiARG9pH6lnHi3mVEfzG20TMJvWbeGxP4CTEsc25+f6tAF+bgfQh85W6ulhyPpXdakCI83vs0iN5p2UYnyJQYfdp1ItiPfdLdGWX5tfd9sJXbcvSaLdCmnBiQEEz1bVSTC3khb2M5Jp/ZaFUn1h+T41rM5HjWGKoLq5qjdSllhZvbPwFkEXiNcwRU3lMGMjrdq6783u+Tak2hB3K4GE825l/CNKXHU7A+8gwNf6gWBnIDoLRBS0YP5VEiSvac5nLsbNRVcC2nuvkPETI0rqjfQFf71tIn/WirZiwcahW5qgAXx0sdtJIj5E+mGTm2tG5FM6pDgyt+5z6y8hbC7jPEKGU/YCIMl+kAFT0UDgvkd2AfWaj5xXkKxlif3zfa3W5tKsXPFMvRoJ4+37yMtMMh9cEG+NWURcincl2xB32fI0leKtDthZuJ2EYK2NcQ9Gs1LD8zdPOSngFueSpSsk/XALiBewIFrWLRnM75X12p7BpWhqyausvnqsLSZAEr5hUP0fUxSQEJ/0B7Ob6p5laGzruRCkQRqej1/spRWY8x8ogvf7YvoPsZmCe9gNSZDjFQkX0lPfaH0v+T2jds/+4rznV1N8J5VW5OrFbdeodzqfcHqxLMK9ciZ6nwsz4DvkaZVebHlVTqxomzJ9UbHPYOiUv9G/cD4iDCjgewwgemgAwIBAKKB4QSB3n2B2zCB2KCB1TCB0jCBz6AbMBmgAwIBF6ESBBBDWVvTLef5igPlhAEGMAQUoQ8bDUNPUlBMQUIuTE9DQUyiFzAVoAMCAQGhDjAMGwpzcG51c2VyYWVzowcDBQBApQAApREYDzIwMjAwNDE0MTQzNDM2WqYRGA8yMDIwMDQxNTAwMzQzNVqnERgPMjAyMDA0MjExNDM0MzVaqA8bDUNPUlBMQUIuTE9DQUypMzAxoAMCAQKhKjAoGw11bmNvbnN0cmFpbmVkGxdhZG1pbnN0YXQuY29ycGxhYi5sb2NhbA==
+```

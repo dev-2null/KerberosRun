@@ -1,0 +1,253 @@
+```
+[*] Starting Kerberos Authentication ...
+[*] Sending AS-REQ ...
+    * MessageType :  KRB_AS_REQ
+    * pvno :  5
+    * PaData :
+       - PA_PAC_REQUEST :
+          - IncludePac :  True
+    * Body :
+       - KdcOptions :  RenewableOk, Canonicalize, Renewable, Forwardable
+       - CName :
+          - Type :  NT_ENTERPRISE
+          - Name :  dev2null@CORPLAB.LOCAL
+       - Realm :  CORPLAB.LOCAL
+       - SName :
+          - Type :  NT_SRV_INST
+          - Name :  krbtgt
+          - Name :  CORPLAB.LOCAL
+       - Till :  9/13/2037 2:48:05 AM +00:00
+       - RTime :  9/13/2037 2:48:05 AM +00:00
+       - Nonce :  637236336
+       - EType :
+          - EncType :  RC4_HMAC_NT
+       - Addresses :
+          - Type :  NetBios
+          - Addresses :  ADMINSTAT
+       - AdditionalTickets :
+       - EncAuthorizationData :
+       - From :
+[x] Kerberos Error: KDC KDC_ERR_PREAUTH_REQUIRED: Additional pre-authentication required
+[*] Adding encrypted timestamp ...
+[*] Sending AS-REQ ...
+    * MessageType :  KRB_AS_REQ
+    * pvno :  5
+    * PaData :
+       - PA_PAC_REQUEST :
+          - IncludePac :  True
+       - PA_ENC_TIMESTAMP :
+          - EType :  AES256_CTS_HMAC_SHA1_96
+          - kvno :
+          - Cipher :  [ClientEncryptedTimestamp...]
+          - PaTimestamp :  4/28/2020 1:19:32 AM +00:00
+          - PaUSec :  363
+    * Body :
+       - KdcOptions :  RenewableOk, Canonicalize, Renewable, Forwardable
+       - CName :
+          - Type :  NT_ENTERPRISE
+          - Name :  dev2null@CORPLAB.LOCAL
+       - Realm :  CORPLAB.LOCAL
+       - SName :
+          - Type :  NT_SRV_INST
+          - Name :  krbtgt
+          - Name :  CORPLAB.LOCAL
+       - Till :  9/13/2037 2:48:05 AM +00:00
+       - RTime :  9/13/2037 2:48:05 AM +00:00
+       - Nonce :  637236337
+       - EType :
+          - EncType :  RC4_HMAC_NT
+       - Addresses :
+          - Type :  NetBios
+          - Addresses :  ADMINSTAT
+       - AdditionalTickets :
+       - EncAuthorizationData :
+       - From :
+[*] Receiving AS-REP...
+    * MessageType :  KRB_AS_REP
+    * pvno :  5
+    * PaData :
+       - PA_ETYPE_INFO2 :
+          - EType :  AES256_CTS_HMAC_SHA1_96
+          - S2kParams :
+          - Salt :  CORPLAB.LOCALdev2null
+    * CRealm :  CORPLAB.LOCAL
+    * CName :
+       - Type :  NT_PRINCIPAL
+       - Name :  dev2null
+    * Ticket :
+       - tkt-vno :  5
+       - Realm :  CORPLAB.LOCAL
+       - SName :
+          - Name :  krbtgt
+          - Type :  NT_SRV_INST
+       - EncryptedPart :
+          - kvno :  11
+          - EType :  AES256_CTS_HMAC_SHA1_96
+          - Cipher :  [krbtgtEncryptedCipher...]
+    * Enc-Part :
+       - kvno :  7
+       - EType :  AES256_CTS_HMAC_SHA1_96
+       - Cipher :  [ClientEncryptedCipher...]
+    * [Decrypted Enc-Part]:
+       - AuthTime :  4/28/2020 1:19:32 AM +00:00
+       - StartTime :  4/28/2020 1:19:32 AM +00:00
+       - EndTime :  4/28/2020 11:19:32 AM +00:00
+       - RenewTill :  5/5/2020 1:19:32 AM +00:00
+       - Nonce :  637236337
+       - Realm :  CORPLAB.LOCAL
+       - SName :
+          - Type :  NT_SRV_INST
+          - Name :  krbtgt
+          - Name :  CORPLAB.LOCAL
+       - EncryptedPaData :
+          - PA_SUPPORTED_ETYPES :
+             - Value : 1F000000
+       - Key :
+          - EType :  RC4_HMAC_NT
+          - Value :  CAD12C313D120ACFEF52CE79D39AEA1C
+       - KeyExpiration :  9/14/2037 2:48:05 AM +00:00
+       - CAddr :
+          - Type :  NetBios
+          - Addresses :  ADMINSTAT
+       - Flags :  EncryptedPreAuthentication, PreAuthenticated, Initial, Renewable, Forwardable
+       - LastReq
+          - Type :  0
+          - Type :  4/28/2020 1:19:32 AM +00:00
+   * [Decrypted TGT]:
+       - AuthTime :  4/28/2020 1:19:32 AM +00:00
+       - StartTime :  4/28/2020 1:19:32 AM +00:00
+       - EndTime :  4/28/2020 11:19:32 AM +00:00
+       - RenewTill :  5/5/2020 1:19:32 AM +00:00
+       - CRealm :  CORPLAB.LOCAL
+       - CName :
+          - Type :  NT_PRINCIPAL
+          - Name :  dev2null
+       - AuthorizationData :
+          - Type :  AdIfRelevant
+             - Type :  AdWin2kPac
+                - Type :  AdWin2kPac
+                - Version :  0
+                - LogonInfo :
+                   - PacType :
+                   - DomainId :
+                      - Revision :  1
+                      - IdentifierAuthority :  NTAuthority
+                      - SubAuthority :  21, 1977317821, 1772133574, 954835042
+                      - SubAuthorityCount :  4
+                   - ExtraId :
+                      - Attributes :  SE_GROUP_MANDATORY, SE_GROUP_ENABLED_BY_DEFAULT, SE_GROUP_ENABLED
+                      - Sid :  S-1-18-1
+                      - Revision :  1
+                      - IdentifierAuthority :  AuthenticationAuthority
+                      - SubAuthority :  1
+                      - SubAuthorityCount :  1
+                   - DomainSid :
+                      - Attributes :  0
+                      - Id :  954835042
+                      - Value :  S-1-5-21-1977317821-1772133574-954835042
+                   - ExtraSidCount :  1
+                   - ExtraSids :
+                      - Id :  1
+                      - Attributes :  0
+                      - Value :  S-1-18-1
+                   - GroupCount :  4
+                   - GroupId :  513
+                   - GroupIds :
+                      - RelativeId :  512
+                      - Attributes :  SE_GROUP_MANDATORY, SE_GROUP_ENABLED_BY_DEFAULT, SE_GROUP_ENABLED
+                      - RelativeId :  1604
+                      - Attributes :  SE_GROUP_MANDATORY, SE_GROUP_ENABLED_BY_DEFAULT, SE_GROUP_ENABLED
+                      - RelativeId :  1605
+                      - Attributes :  SE_GROUP_MANDATORY, SE_GROUP_ENABLED_BY_DEFAULT, SE_GROUP_ENABLED
+                      - RelativeId :  513
+                      - Attributes :  SE_GROUP_MANDATORY, SE_GROUP_ENABLED_BY_DEFAULT, SE_GROUP_ENABLED
+                   - GroupSid :  S-1-5-21-1977317821-1772133574-954835042-513
+                   - GroupSids :
+                      - Id :  512
+                      - Attributes :  SE_GROUP_MANDATORY, SE_GROUP_ENABLED_BY_DEFAULT, SE_GROUP_ENABLED
+                      - Value :  S-1-5-21-1977317821-1772133574-954835042-512
+                      - Id :  1604
+                      - Attributes :  SE_GROUP_MANDATORY, SE_GROUP_ENABLED_BY_DEFAULT, SE_GROUP_ENABLED
+                      - Value :  S-1-5-21-1977317821-1772133574-954835042-1604
+                      - Id :  1605
+                      - Attributes :  SE_GROUP_MANDATORY, SE_GROUP_ENABLED_BY_DEFAULT, SE_GROUP_ENABLED
+                      - Value :  S-1-5-21-1977317821-1772133574-954835042-1605
+                      - Id :  513
+                      - Attributes :  SE_GROUP_MANDATORY, SE_GROUP_ENABLED_BY_DEFAULT, SE_GROUP_ENABLED
+                      - Value :  S-1-5-21-1977317821-1772133574-954835042-513
+                   - HomeDirectory :
+                   - HomeDrive :
+                   - KickOffTime :  1/1/0001 12:00:00 AM +00:00
+                   - LastFailedILogon :  1/1/1601 12:00:00 AM +00:00
+                   - LastSuccessfulILogon :  1/1/1601 12:00:00 AM +00:00
+                   - LogoffTime :  1/1/0001 12:00:00 AM +00:00
+                   - LogonCount :  316
+                   - LogonScript :
+                   - LogonTime :  4/28/2020 1:18:52 AM +00:00
+                   - ProfilePath :
+                   - PwdCanChangeTime :  4/7/2020 10:18:33 AM +00:00
+                   - PwdLastChangeTime :  4/6/2020 10:18:33 AM +00:00
+                   - PwdMustChangeTime :  1/1/0001 12:00:00 AM +00:00
+                   - Reserved1 :  0, 0
+                   - Reserved3 :  0
+                   - ResourceDomainId :
+                   - ResourceDomainSid :
+                   - ResourceGroupCount :  0
+                   - ResourceGroupIds :
+                   - ResourceGroups :
+                   - SubAuthStatus :  0
+                   - UserAccountControl :  ADS_UF_LOCKOUT
+                   - UserDisplayName :
+                   - UserFlags :  LOGON_EXTRA_SIDS
+                   - UserId :  1104
+                   - UserName :  dev2null
+                   - UserSessionKey :  00000000000000000000000000000000
+                   - UserSid :  S-1-5-21-1977317821-1772133574-954835042-1104
+                   - DomainName :  CORP
+                   - ServerName :  DC1
+                   - BadPasswordCount :  0
+                   - FailedILogonCount :  0
+                - ClientInformation :
+                   - PacType :  CLIENT_NAME_TICKET_INFO
+                   - ClientId :  4/28/2020 1:19:32 AM +00:00
+                   - Name :  dev2null
+                   - NameLength :  16
+                - KdcSignature :
+                   - PacType :  0
+                   - RODCIdentifier :  0
+                   - Signature :  384D391A6FA9002B0D7B07C0
+                   - SignatureData :  [...]
+                   - Type :  HMAC_SHA1_96_AES256
+                   - Validated :  False
+                   - Validator :
+                      - Validator :  PaForUserChecksum
+                      - Validator :  384D391A6FA9002B0D7B07C0
+                - ServerSignature :
+                   - PacType :  0
+                   - RODCIdentifier :  0
+                   - Signature :  C5F7EE6F917EE2CC115C910D
+                   - SignatureData :  [...]
+                   - Type :  HMAC_SHA1_96_AES256
+                   - Validated :  False
+                   - Validator :
+                      - Validator :  PaForUserChecksum
+                      - Validator :  C5F7EE6F917EE2CC115C910D
+                - UpnDomainInformation :
+                   - PacType :  UPN_DOMAIN_INFO
+                   - Upn :  dev2null@corplab.local
+                   - UpnLength :  44
+                   - UpnOffset :  16
+                   - Domain :  CORPLAB.LOCAL
+                   - DnsDomainNameLength :  26
+                   - DnsDomainNameOffset :  64
+                - DecodingErrors :
+                - HasRequiredFields :  True
+       - CAddr :
+       - Flags :  EncryptedPreAuthentication, PreAuthenticated, Initial, Renewable, Forwardable
+       - Key :
+          - EType :  RC4_HMAC_NT
+          - Value :  CAD12C313D120ACFEF52CE79D39AEA1C
+       - Transited :
+          - Type :  0
+          - Contents :
+```
