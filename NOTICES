@@ -1,0 +1,17 @@
+KerberosRun uses a library distributed under the same MIT license.
+
+License for Kerberos.NET
+---------------------------------
+Copyright (c) .NET Foundation and Contributors. All rights reserved.
+The MIT License (MIT)
+
+https://github.com/dotnet/Kerberos.NET/blob/develop/LICENSE
+
+Some code in KerberosRun were taken from the tool Rubues (https://github.com/GhostPack/Rubeus) which is under a different license.
+
+License for Rubeus
+---------------------------------
+Copyright (c) 2018, Will Schroeder. All rights reserved.
+BSD 3-Clause License
+
+https://github.com/GhostPack/Rubeus/blob/master/LICENSE
