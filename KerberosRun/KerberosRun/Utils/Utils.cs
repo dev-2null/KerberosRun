@@ -6,6 +6,20 @@ namespace KerberosRun.Utils
 {
     public static class Utils
     {
+        public enum PrincipalNameType
+        {
+            NT_UNKNOWN = 0,
+            NT_PRINCIPAL = 1,
+            NT_SRV_INST = 2,
+            NT_SRV_HST = 3,
+            NT_SRV_XHST = 4,
+            NT_UID = 5,
+            NT_X500_PRINCIPAL = 6,
+            NT_SMTP_NAME = 7,
+            NT_ENTERPRISE = 10,
+            NT_MS_PRINCIPAL = -128
+        }
+
         // From: https://stackoverflow.com/questions/2972103/how-to-convert-a-string-to-a-hex-byte-array
         public static byte[] ToHexByteArray(String HexString)
         {

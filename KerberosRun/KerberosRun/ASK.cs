@@ -381,6 +381,8 @@ namespace KerberosRun
 
 
             var sname = rst.ServicePrincipalName.Split('/', '@');
+            //var sname = new string[] { rst.ServicePrincipalName };
+
             var tgt = asRep.Ticket;
 
             var additionalTickets = new List<KrbTicket>();
@@ -410,7 +412,8 @@ namespace KerberosRun
                 Realm = rst.Realm,
                 SName = new KrbPrincipalName()
                 {
-                    Type = PrincipalNameType.NT_SRV_INST,
+                    Type = PrincipalNameType.NT_PRINCIPAL,
+                    //Type = (PrincipalNameType)Utils.Utils.PrincipalNameType.NT_MS_PRINCIPAL,
                     Name = sname
                 },
                 Till = KrbConstants.KerberosConstants.EndOfTime,
