@@ -54,7 +54,7 @@ namespace KerberosRun
 
         public static async Task ResolveCmd(Options options)
         {
-            var transport = new TcpKerberosTransport(logger, kdc);
+            var transport = new TcpKerberosTransport(logger);
             if (options.User != null)
             {
                 username =  options.User.ToLower();

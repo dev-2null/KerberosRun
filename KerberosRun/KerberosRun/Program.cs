@@ -3,7 +3,7 @@ using CommandLine;
 
 namespace KerberosRun
 {
-    class MainClass
+    public class Program
     {
 
         public static async System.Threading.Tasks.Task Main(string[] args)
