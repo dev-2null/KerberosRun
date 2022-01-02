@@ -4,38 +4,38 @@ namespace KerberosRun
 {
     public class Options
     {
-
+        public static Options Instance { get; set; }
         /// <summary>
         /// Commands
         /// </summary>
-        [Option("Kerberoast", DefaultValue = false, HelpText = "Perform Kerberoasting...")]
+        [Option("Kerberoast", Default = false, HelpText = "Perform Kerberoasting...")]
         public bool Kerberoast { get; set; }
 
-        [Option("Asreproast", DefaultValue = false, HelpText = "Perform Asreproasting...")]
+        [Option("Asreproast", Default = false, HelpText = "Perform Asreproasting...")]
         public bool Asreproast { get; set; }
 
-        [Option("AskTGT", DefaultValue = false, HelpText = "Ask for a TGT...")]
+        [Option("AskTGT", Default = false, HelpText = "Ask for a TGT...")]
         public bool AskTGT { get; set; }
 
-        [Option("AskTGS", DefaultValue = false, HelpText = "Ask for a TGS...")]
+        [Option("AskTGS", Default = false, HelpText = "Ask for a TGS...")]
         public bool AskTGS { get; set; }
 
-        [Option("S4U", DefaultValue = false, HelpText = "Perform S4U...")]
+        [Option("S4U", Default = false, HelpText = "Perform S4U...")]
         public bool S4U { get; set; }
 
-        [Option("S4U2Self", DefaultValue = false, HelpText = "Perform S4U2Self...")]
+        [Option("S4U2Self", Default = false, HelpText = "Perform S4U2Self...")]
         public bool S4U2Self { get; set; }
 
-        [Option("Sliver", DefaultValue = false, HelpText = "Build Sliver Ticket...")]
+        [Option("Sliver", Default = false, HelpText = "Build Sliver Ticket...")]
         public bool Sliver { get; set; }
 
-        [Option("Golden", DefaultValue = false, HelpText = "Build Golden Ticket...")]
+        [Option("Golden", Default = false, HelpText = "Build Golden Ticket...")]
         public bool Golden { get; set; }
 
-        //[Option("S4U2Proxy", DefaultValue = false, HelpText = "Perform S4U2Proxy...")]
+        //[Option("S4U2Proxy", Default = false, HelpText = "Perform S4U2Proxy...")]
         //public bool S4U2Proxy { get; set; }
 
-        [Option("Ticket", DefaultValue = null, HelpText = "Pass base64 encoded kirbi ticket...")]
+        [Option("Ticket", Default = null, HelpText = "Pass base64 encoded kirbi ticket...")]
         public string Ticket { get; set; }
 
 
@@ -45,71 +45,73 @@ namespace KerberosRun
         /// <summary>
         /// Parameters
         /// </summary>
-        [Option("Domain", DefaultValue = null, HelpText = "Domain Name")]
+        [Option("Domain", Default = null, HelpText = "Domain Name")]
         public string Domain { get; set; }
 
-        [Option("User", DefaultValue = null, HelpText = "Username")]
+        [Option("User", Default = null, HelpText = "Username")]
         public string User { get; set; }
 
-        [Option("Impersonateuser", DefaultValue = null, HelpText = "Impersonate Username")]
+        [Option("Impersonateuser", Default = null, HelpText = "Impersonate Username")]
         public string Impersonate { get; set; }
 
-        [Option("Pass", DefaultValue = null, HelpText = "Password")]
+        [Option("Pass", Default = null, HelpText = "Password")]
         public string Pass { get; set; }
 
-        [Option("Host", DefaultValue = null, HelpText = "Target Server")]
+        [Option("Host", Default = null, HelpText = "Target Server")]
         public string Host { get; set; }
 
-        [Option("Service", DefaultValue = null, HelpText = "Service for a sliver ticket")]
+        [Option("Service", Default = null, HelpText = "Service for a sliver ticket")]
         public string Service { get; set; }
 
-        [Option("RC4", DefaultValue = null, HelpText = "RC4 Hash")]
+        [Option("RC4", Default = null, HelpText = "RC4 Hash")]
         public string RC4 { get; set; }
 
-        [Option("AES128", DefaultValue = null, HelpText = "AES128 Hash")]
+        [Option("AES128", Default = null, HelpText = "AES128 Hash")]
         public string AES128 { get; set; }
 
-        [Option("AES256", DefaultValue = null, HelpText = "AES256 Hash")]
+        [Option("AES256", Default = null, HelpText = "AES256 Hash")]
         public string AES256 { get; set; }
 
-        [Option("Spn", DefaultValue = null, HelpText = "SPN")]
+        [Option("Spn", Default = null, HelpText = "SPN")]
         public string Spn { get; set; }
 
-        [Option("Format", DefaultValue = "hashcat", HelpText = "Hash Format")]
+        [Option("Format", Default = "hashcat", HelpText = "Hash Format")]
         public string Format { get; set; }
 
-        //[Option("KrbtgtHash", DefaultValue = null, HelpText = "Krbtgt Account Hash")]
+        //[Option("KrbtgtHash", Default = null, HelpText = "Krbtgt Account Hash")]
         //public string KrbtgtHash { get; set; }
 
-        [Option("UserID", DefaultValue = 500, HelpText = "User ID")]
+        [Option("UserID", Default = 500, HelpText = "User ID")]
         public int UserID { get; set; }
 
-        [Option("DomainSID", DefaultValue = null, HelpText = "Domain SID")]
+        [Option("DomainSID", Default = null, HelpText = "Domain SID")]
         public string DomainSID { get; set; }
 
-        [Option("DecryptEtype", DefaultValue = null, HelpText = "Decrypt Encryption Type")]
+        [Option("DecryptEtype", Default = null, HelpText = "Decrypt Encryption Type")]
         public string DecryptEtype { get; set; }
 
-        [Option("DecryptTGT", DefaultValue = null, HelpText = "Decrypt TGT")]
+        [Option("DecryptTGT", Default = null, HelpText = "Decrypt TGT")]
         public string DecryptTGT { get; set; }
 
-        [Option("DecryptTGS", DefaultValue = null, HelpText = "Decrypt TGS")]
+        [Option("DecryptTGS", Default = null, HelpText = "Decrypt TGS")]
         public string DecryptTGS { get; set; }
 
-        [Option("SrvName", DefaultValue = null, HelpText = "Service Account Name for decrypting TGS")]
+        [Option("SrvName", Default = null, HelpText = "Service Account Name for decrypting TGS")]
         public string SrvName { get; set; }
 
-        [Option("Verbose", DefaultValue = false, HelpText = "Verbose")]
+        [Option("Verbose", Default = false, HelpText = "Verbose")]
         public bool Verbose { get; set; }
 
-        [Option("Outfile", DefaultValue = false, HelpText = "Write Kirbi file.")]
+        [Option("Outfile", Default = false, HelpText = "Write Kirbi file.")]
         public bool Outfile { get; set; }
 
-        [Option("PTT", DefaultValue = false, HelpText = "Pass The Ticket into current session")]
+        [Option("PTT", Default = false, HelpText = "Pass The Ticket into current session")]
         public bool PTT { get; set; }
 
+        [Option("NoPAC", Default = false, HelpText = "No PAC")]
+        public bool NoPAC { get; set; }
 
-        [HelpOption]
+
         public string GetHelp()
         {
             var help = @"

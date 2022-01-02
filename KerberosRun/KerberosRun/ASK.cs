@@ -13,7 +13,7 @@ using System.Text;
 
 namespace KerberosRun
 {
-    class Ask
+    public class Ask
     {
         private static KerberosKey credKey;
         private static KerberosCredential cred;
@@ -52,11 +52,12 @@ namespace KerberosRun
             KrbAsRep asRep = null;
             bool notPreauth = true;
             AuthenticationOptions authOptions =
-            AuthenticationOptions.IncludePacRequest |
-            AuthenticationOptions.RenewableOk |
-            AuthenticationOptions.Canonicalize |
-            AuthenticationOptions.Renewable |
-            AuthenticationOptions.Forwardable;
+                AuthenticationOptions.RenewableOk |
+                AuthenticationOptions.Canonicalize |
+                AuthenticationOptions.Renewable |
+                AuthenticationOptions.Forwardable |
+                AuthenticationOptions.RepPartCompatible;
+            if (!Options.Instance.NoPAC) { authOptions |= AuthenticationOptions.IncludePacRequest; }
             int authAttempt = 0;
 
             while (notPreauth)
@@ -85,7 +86,7 @@ namespace KerberosRun
                         }
                     };
 
-                    
+
                     asReqMessage = new KrbAsReq()
                     {
                         Body = new KrbKdcReqBody
@@ -118,7 +119,9 @@ namespace KerberosRun
                                 Type = PrincipalNameType.NT_SRV_INST,
                                 Name = new[] { "krbtgt", credKey.PrincipalName.Realm }
                             },
-                            Till = KrbConstants.KerberosConstants.EndOfTime
+                            Till = KrbConstants.KerberosConstants.EndOfTime,
+                            AdditionalTickets = null,
+                            EncAuthorizationData = null
                         },
                         PaData = padata.ToArray()
                     };
