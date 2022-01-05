@@ -112,7 +112,7 @@ namespace KerberosRun
         public bool NoPAC { get; set; }
 
 
-        public string GetHelp()
+        public static void GetHelp()
         {
             var help = @"
 Usage: KerberosRun.exe -h
@@ -120,6 +120,7 @@ Usage: KerberosRun.exe -h
     [--AskTGT]              Ask for a TGT
         --User*             A valid username
         --Pass              A valid password
+        --NopaC             Do not request PAC
 
     [--AskTGS]              Ask for a TGS
         --User*             A valid username
@@ -173,6 +174,7 @@ Usage: KerberosRun.exe -h
 
 
 Example:  
+        .\KerberosRun.exe --Asktgt --user username --pass password --nopac
         .\KerberosRun.exe --Asktgt --user username --pass password --verbose --outfile --decrypttgt [krbtgtHash] --decryptetype aes256
         .\KerberosRun.exe --Asktgs --user username --pass password --spn service/srv.domain.com --verbose --outfile
         .\KerberosRun.exe --Asreproast --user username --verbose
@@ -183,7 +185,7 @@ Example:
         .\KerberosRun.exe --Sliver --user administrator --domain domain.com --domainsid  [DomainSID] --RC4 [srvHash] --Service HTTP --HOST DC01$ -ptt
         .\KerberosRun.exe --Ticket Base64EncodedKirbiString/KirbiTicketFiles
                 ";
-            return help;
+            System.Console.WriteLine(help);
         }
 
     }

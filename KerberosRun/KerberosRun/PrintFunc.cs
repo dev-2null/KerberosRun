@@ -18,7 +18,8 @@ namespace KerberosRun
             Console.WriteLine(@" /  '_/ -_) __/ _ \/ -_) __/ _ \(_-</ __/ // / _ \");
             Console.WriteLine(@"/_/\_\\__/_/ /_.__/\__/_/  \___/___/_/  \_,_/_//_/");
             Console.WriteLine();
-            Console.WriteLine("  v1.0.0");
+            Console.WriteLine(" by dev2null  v1.0.1");
+            Console.WriteLine();
         }
         //PaData
         public static void PrintPaData(KrbPaData[] paData, KerberosKey key, string decrypted = "", KerberosKey sessionKey = null)

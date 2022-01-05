@@ -32,22 +32,23 @@ PS C:\Users\dev2null\Desktop> .\KerberosRun.exe
  /  '_/ -_) __/ _ \/ -_) __/ _ \(_-</ __/ // / _ \
 /_/\_\\__/_/ /_.__/\__/_/  \___/___/_/  \_,_/_//_/
 
-  v1.0.0
+  v1.0.1
 
 Usage: KerberosRun.exe -h
-
+    
     [--AskTGT]              Ask for a TGT
         --User*             A valid username
         --Pass              A valid password
+        --NopaC             Do not request PAC
 
     [--AskTGS]              Ask for a TGS
         --User*             A valid username
-        --Pass              A valid password
+        --Pass              A valid password   
         --SPN*              Target SPN for the service request
 
     [--Kerberoast]          Kerberoasting
         --User*             A valid username
-        --Pass              A valid password
+        --Pass              A valid password   
         --SPN*              Target SPN for Kerberoasting
 
     [--Asreproast]          ASREPRoasting
@@ -81,17 +82,18 @@ Usage: KerberosRun.exe -h
     [--Ticket]              Pass base64 encoded kirbi ticket into current session
 
      --Domain            A valid domain name (default: current domain)
-     --RC4/AES128/AES256 A valid hash (alternative way for authentication)
+     --RC4/AES128/AES256 A valid hash (alternative way for authentication) 
      --Verbose           Verbose mode
      --Outfile           Write the ticket to a kirbi file under the current directory
      --PTT               Pass the ticket into current session
      --DecryptTGT        Supply the krbtgt hash and decrypt the TGT ticket
      --DecryptTGS        Supply the service account hash and decrypt the TGS ticket
-     --DecryptEtype   The encryption type of the hash for decrypting tickets (rc4/aes128/aes256)
+     --DecryptEtype   The encryption type of the hash for decrypting tickets (rc4/aes128/aes256) 
      --SrvName           The service account name for decrypting TGS
 
 
-Example:
+Example:  
+        .\KerberosRun.exe --Asktgt --user username --pass password --nopac
         .\KerberosRun.exe --Asktgt --user username --pass password --verbose --outfile --decrypttgt [krbtgtHash] --decryptetype aes256
         .\KerberosRun.exe --Asktgs --user username --pass password --spn service/srv.domain.com --verbose --outfile
         .\KerberosRun.exe --Asreproast --user username --verbose
