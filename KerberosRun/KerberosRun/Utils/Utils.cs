@@ -2,7 +2,7 @@
 using System.IO;
 using System.Text.RegularExpressions;
 
-namespace KerberosRun.Utils
+namespace KerberosRun
 {
     public static class Utils
     {
@@ -53,7 +53,7 @@ namespace KerberosRun.Utils
         }
 
 
-        static public string MakeTicketFileName(string username, string[] sname = null)
+        public static string MakeTicketFileName(string username, string[] sname = null)
         {
             string name;
             if (sname == null)

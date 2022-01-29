@@ -1,5 +1,7 @@
 ﻿using System;
+using System.DirectoryServices.ActiveDirectory;
 using CommandLine;
+using Kerberos.NET.Entities;
 
 namespace KerberosRun
 {
@@ -8,8 +10,7 @@ namespace KerberosRun
 
         public static async System.Threading.Tasks.Task Main(string[] args)
         {
-
-            PrintFunc.PrintBanner();
+            Display.PrintBanner();
             var parser = new Parser(with =>
             {
                 with.CaseInsensitiveEnumValues = true;
@@ -23,18 +24,11 @@ namespace KerberosRun
             var options = Options.Instance;
             if (options == null) { Options.GetHelp(); return; }
 
-            if (options.Ticket == null & options.Asreproast == false & options.Kerberoast == false 
-                & options.AskTGS == false & options.AskTGT == false & options.S4U == false
-                & options.S4U2Self == false & options.Golden == false & options.Sliver == false)
-            {
-                Options.GetHelp();
-                Environment.Exit(0);
-            }
+            Logging.LoadLoggingConfig();
 
-            await Commands.ResolveCmd(options);
+            var KR = new KerberosRun(options);
+            await KR.ResolveCommandAsync();
 
-            Console.WriteLine();
-            
         }
 
 

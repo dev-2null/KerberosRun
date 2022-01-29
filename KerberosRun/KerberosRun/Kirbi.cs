@@ -1,14 +1,14 @@
 ﻿using Kerberos.NET.Crypto;
 using Kerberos.NET.Entities;
 using System;
-
+using System.Collections.Generic;
 
 namespace KerberosRun
 {
-    class Kirbi
+    public class Kirbi
     {
         //FROM AS_REP
-        public static byte[] toKirbi(KrbAsRep asRep, KrbEncAsRepPart asDecryptedRepPart, bool ptt = false)
+        public static byte[] GetKirbi(KrbAsRep asRep, KrbEncAsRepPart asDecryptedRepPart, bool ptt = false)
         {
 
 
@@ -83,9 +83,8 @@ namespace KerberosRun
             myCred.EncryptedPart = encryptedData;
 
             byte[] kirbiBytes = myCred.EncodeApplication().ToArray();
-
-
-            string kirbiString = Convert.ToBase64String(kirbiBytes);
+            
+            //string kirbiString = Convert.ToBase64String(kirbiBytes);
 
             if (ptt) { LSA.ImportTicket(kirbiBytes, new LUID()); }
             
@@ -95,7 +94,7 @@ namespace KerberosRun
 
 
         //FROM TGS_REP
-        public static byte[] toKirbi(KrbTgsRep tgsRep, KrbEncTgsRepPart tgsDecryptedRepPart, bool ptt = false)
+        public static byte[] GetKirbi(KrbTgsRep tgsRep, KrbEncTgsRepPart tgsDecryptedRepPart, bool ptt = false)
         {
             //KrbCredInfo::= SEQUENCE {
             //                key[0]                 EncryptionKey,
@@ -166,8 +165,7 @@ namespace KerberosRun
 
             byte[] kirbiBytes = myCred.EncodeApplication().ToArray();
 
-
-            string kirbiString = Convert.ToBase64String(kirbiBytes);
+            //string kirbiString = Convert.ToBase64String(kirbiBytes);
 
             if (ptt) { LSA.ImportTicket(kirbiBytes, new LUID()); }
             
@@ -177,10 +175,10 @@ namespace KerberosRun
 
 
         //FROM TGT
-        public static byte[] toKirbi(KrbTicket tgt, string hash, EncryptionType etype,  bool ptt = false, bool verbose = false)
+        public static byte[] GetKirbi(KrbTicket tgt, string hash, EncryptionType etype,  bool ptt = false, bool verbose = false)
         {
 
-            var kerbCred = new Utils.KerberosHashCreds("krbtgt", hash, etype);
+            var kerbCred = new KerberosHashCreds("krbtgt", hash, etype);
 
             var ticketDecrypted = tgt.EncryptedPart.Decrypt
                                 (kerbCred.CreateKey(),
@@ -277,7 +275,7 @@ namespace KerberosRun
             if (verbose)
             {
                 Console.WriteLine("[*] Ticket Info:");
-                PrintFunc.PrintKirbi(kirbiString);
+                Display.PrintKirbi(kirbiString);
             }
 
 
@@ -286,10 +284,10 @@ namespace KerberosRun
 
 
         //FROM TGS
-        public static byte[] toKirbi(KrbTicket tgs, string srvName, string srvHash, EncryptionType etype, string service, bool ptt = false, bool verbose = false)
+        public static byte[] GetKirbi(KrbTicket tgs, string srvName, string srvHash, EncryptionType etype, string service, bool ptt = false, bool verbose = false)
         {
 
-            var kerbCred = new Utils.KerberosHashCreds(srvName, srvHash, etype);
+            var kerbCred = new KerberosHashCreds(srvName, srvHash, etype);
 
             var ticketDecrypted = tgs.EncryptedPart.Decrypt
                                 (kerbCred.CreateKey(),
@@ -394,7 +392,7 @@ namespace KerberosRun
             if (verbose) 
             {
                 Console.WriteLine("[*] Ticket Info:");
-                PrintFunc.PrintKirbi(kirbiString); 
+                Display.PrintKirbi(kirbiString); 
             }
 
 
@@ -403,5 +401,40 @@ namespace KerberosRun
    
     
     
+
+        public static KIIRBIINFO GetTicketFromKirbi(string kirbi)
+        {
+            try
+            {
+                var kirbiBytes = Convert.FromBase64String(kirbi);
+
+                var krbCred = KrbCred.DecodeApplication(kirbiBytes);
+
+                var encCredPart = KrbEncKrbCredPart.DecodeApplication(krbCred.EncryptedPart.Cipher);
+
+                var tgt = krbCred.Tickets[0];
+                var sessionKey = encCredPart.TicketInfo[0].Key;
+                string cname = encCredPart.TicketInfo[0].PName.Name[0];
+
+                return new KIIRBIINFO { 
+                    Ticket = tgt,
+                    SessionKey = sessionKey,
+                    CNAME = cname
+                };
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("[x] {0}", e.Message);
+                Environment.Exit(1);
+            }
+            return new KIIRBIINFO { };
+        }
+
+        public struct KIIRBIINFO
+        {
+            public KrbTicket Ticket;
+            public KrbEncryptionKey SessionKey;
+            public string CNAME;
+        }
     }
 }

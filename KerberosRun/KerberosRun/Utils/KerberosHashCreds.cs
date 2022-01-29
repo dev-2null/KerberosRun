@@ -3,7 +3,7 @@ using Kerberos.NET.Crypto;
 using Kerberos.NET.Entities;
 using System;
 
-namespace KerberosRun.Utils
+namespace KerberosRun
 {
     public class KerberosHashCreds : KerberosCredential
     {
