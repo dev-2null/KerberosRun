@@ -79,7 +79,7 @@ namespace KerberosRun
                                 b => KrbEncTicketPart.DecodeApplication(b));
 
                 Console.WriteLine("[*] Decrypting Golden Ticket ...");
-                Display.PrintTicketEnc(de);
+                Displayer.PrintTicketEnc(de);
             }
 
             Console.WriteLine("[*] Now you have a Golden Ticket!");
@@ -178,7 +178,7 @@ namespace KerberosRun
                                 b => KrbEncTicketPart.DecodeApplication(b));
 
                 Console.WriteLine("   * [Decrypted SliverTicket Ticket]:");
-                Display.PrintTicketEnc(de);
+                Displayer.PrintTicketEnc(de);
             }
 
 

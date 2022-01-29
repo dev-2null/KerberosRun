@@ -14,11 +14,8 @@ using System.Threading.Tasks;
 
 namespace KerberosRun
 {
-    public class S4U2Self
+    public class S4U2Self: KerberosService
     {
-        private readonly DateTime now;
-        private readonly TcpKerberosTransport transport;
-        private KerberosCredential cred;
         private string clientName;
         private static KrbTicket tgt;
         private static KrbEncryptionKey sessionKey;
@@ -29,25 +26,17 @@ namespace KerberosRun
         private KrbEncTicketPart ticketDecrypted;
         //private KrbEncryptionKey s4u2selfKey;
         internal KrbTicket s4u2selfTicket;
-        private byte[] kirbiTGS;
 
-        Logger logger;
-
-        public S4U2Self(KrbTicket ticket, KrbEncryptionKey key)
+        public S4U2Self(KrbTicket ticket, KrbEncryptionKey key): base()
         {
-            logger = LogManager.GetCurrentClassLogger();
-            now = DateTime.Now;
-            transport = new TcpKerberosTransport(null);
-
             tgt = ticket;
             sessionKey = key;
-            cred = Helper.GetCredFromOption();
         }
 
 
         public S4U2Self(TGT myTGT) : this(tgt, sessionKey)
         {
-            tgt = myTGT.Ticket;
+            tgt = myTGT.ticket;
             sessionKey = myTGT.sessionKey;
 
         }
@@ -62,7 +51,7 @@ namespace KerberosRun
         }
  
 
-        public void CreateS4U2SelfRequest()
+        public override void Create()
         {
             //Request Service Ticket parameters
 
@@ -217,14 +206,14 @@ namespace KerberosRun
 
 
 
-        public async Task<KrbTgsRep> AskS4U2SelfAsync()
+        public override async Task Ask()
         {
-            CreateS4U2SelfRequest();
+            Create();
 
             var encodedTgs = tgsReq.EncodeApplication();
 
             logger.Info("[*] Sending TGS-REQ [S4U2Self] ...");
-            if (Options.Instance.Verbose && cred != null) { Display.PrintReq(tgsReq, cred.CreateKey(), sessionKey.AsKey()); }
+            if (Options.Instance.Verbose && cred != null) { Displayer.PrintReq(tgsReq, cred.CreateKey(), sessionKey.AsKey()); }
 
             CancellationToken cancellation = default;
             cancellation.ThrowIfCancellationRequested();
@@ -266,7 +255,7 @@ namespace KerberosRun
                 tgsDecryptedRepPart.SName = subSrvName;
                 tgsRep.Ticket.SName = subSrvName;
             }
-            kirbiTGS = Kirbi.GetKirbi(tgsRep, tgsDecryptedRepPart, Options.Instance.PTT);
+            bKirbi = Kirbi.GetKirbi(tgsRep, tgsDecryptedRepPart, Options.Instance.PTT);
 
             //TGS-REQ Ticket Enc-Part
             try
@@ -282,43 +271,35 @@ namespace KerberosRun
                 logger.Error($"[x] Decryption Error: {e.Message}");
             }
 
-
-
             s4u2selfTicket = tgsRep.Ticket;
-            return tgsRep;
-
 
         }
 
 
 
-        public string ToKirbi()
+
+        public override void ToFile()
         {
-            return Convert.ToBase64String(kirbiTGS);
-        }
-
-        public void ToFile()
-        {
-            Utils.WriteBytesToFile(Utils.MakeTicketFileName(Options.Instance.ImpersonateUser), kirbiTGS);
+            Utils.WriteBytesToFile(Utils.MakeTicketFileName(Options.Instance.ImpersonateUser), bKirbi);
         }
 
 
 
-        public void DisplayS4U2Self()
+        public override void Display()
         {
             if (!Options.Instance.Verbose) { return; }
             try
             {
-                Display.PrintRep(tgsRep, cred.CreateKey());
+                Displayer.PrintRep(tgsRep, cred.CreateKey());
 
                 Console.WriteLine("    * [Decrypted Enc-Part]:");
-                Display.PrintRepEnc(tgsDecryptedRepPart, cred.CreateKey());
+                Displayer.PrintRepEnc(tgsDecryptedRepPart, cred.CreateKey());
 
                 //=========================================
                 if (ticketDecrypted != null)
                 {
                     Console.WriteLine("    * [Decrypted Ticket Enc-Part]:");
-                    Display.PrintTicketEnc(ticketDecrypted);
+                    Displayer.PrintTicketEnc(ticketDecrypted);
                 }
                 //=========================================
             }

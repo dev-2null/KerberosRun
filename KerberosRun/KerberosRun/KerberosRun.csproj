@@ -36,6 +36,7 @@
     <Reference Include="System.Security" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="KerberosService.cs" />
     <Compile Include="KerberosRun.cs" />
     <Compile Include="Logging.cs" />
     <Compile Include="S4U2Proxy.cs" />
@@ -53,7 +54,7 @@
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="KrbConstants.cs" />
-    <Compile Include="Display.cs" />
+    <Compile Include="Displayer.cs" />
     <Compile Include="Kirbi.cs" />
     <Compile Include="Utils\Utils.cs" />
   </ItemGroup>

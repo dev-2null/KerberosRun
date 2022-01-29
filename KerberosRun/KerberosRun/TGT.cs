@@ -14,37 +14,25 @@ using NLog;
 
 namespace KerberosRun
 {
-    public class TGT
+    public class TGT: KerberosService
     {
-        private readonly DateTime now;
-        private readonly TcpKerberosTransport transport;
-        internal KerberosCredential cred;
         private KrbAsReq asReqMessage;
         private KrbAsRep asRep;
         private KrbEncAsRepPart asDecryptedRepPart;
         internal KrbEncryptionKey sessionKey;
-        internal KrbTicket Ticket;
-        private byte[] kirbiTGT;
         AuthenticationOptions authOptions = AuthenticationOptions.RenewableOk |
                                             AuthenticationOptions.Canonicalize |
                                             AuthenticationOptions.Renewable |
                                             AuthenticationOptions.Forwardable |
                                             AuthenticationOptions.RepPartCompatible;
-        Logger logger;
 
-        public TGT()
+        public TGT(): base()
         {
-            logger = LogManager.GetCurrentClassLogger();
-            now = DateTime.Now;
-            transport = new TcpKerberosTransport(null);
-
-            cred = Helper.GetCredFromOption();
-
             if (!Options.Instance.NoPAC) { authOptions |= AuthenticationOptions.IncludePacRequest; }
         }
 
 
-        public void CreateASReq()
+        public override void Create()
         {
             var kdcOptions = (KdcOptions)(authOptions & ~AuthenticationOptions.AllAuthentication);
 
@@ -134,7 +122,7 @@ namespace KerberosRun
 
 
 
-        public async Task<KrbAsRep> AskTGT()
+        public override async Task Ask()
         {
             logger.Info("[*] Starting Kerberos Authentication ...");
             //Pre-Auth
@@ -146,7 +134,7 @@ namespace KerberosRun
                 {
                     logger.Info("[*] Sending AS-REQ ...");
 
-                    CreateASReq();
+                    Create();
 
                     var asReq = asReqMessage.EncodeApplication();
 
@@ -192,15 +180,13 @@ namespace KerberosRun
             }
 
 
-            Ticket = asRep.Ticket;
+            ticket = asRep.Ticket;
             asDecryptedRepPart = cred.DecryptKdcRep(
                            asRep,
                            KeyUsage.EncAsRepPart,
                            d => KrbEncAsRepPart.DecodeApplication(d));
             sessionKey = asDecryptedRepPart.Key;
-            kirbiTGT = Kirbi.GetKirbi(asRep, asDecryptedRepPart, Options.Instance.PTT);
-
-            return asRep;
+            bKirbi = Kirbi.GetKirbi(asRep, asDecryptedRepPart, Options.Instance.PTT);
         }
 
 
@@ -224,23 +210,23 @@ namespace KerberosRun
 
 
 
-        public void DisplayTGT()
+        public override void Display()
         {
             if (!Options.Instance.Verbose) { return; }
             //AS-Req Part
             logger.Info("[*] AS-REQ");
-            Display.PrintReq(asReqMessage, cred.CreateKey());
+            Displayer.PrintReq(asReqMessage, cred.CreateKey());
 
             //AS-Rep Part
             logger.Info("[*] AS-REP");
-            Display.PrintRep(asRep, cred.CreateKey());
+            Displayer.PrintRep(asRep, cred.CreateKey());
 
 
             if (authOptions.HasFlag(AuthenticationOptions.PreAuthenticate))
             {
                 Console.WriteLine("    * [Decrypted Enc-Part]:");
 
-                Display.PrintRepEnc(asDecryptedRepPart, cred.CreateKey());
+                Displayer.PrintRepEnc(asDecryptedRepPart, cred.CreateKey());
 
 
 
@@ -266,7 +252,7 @@ namespace KerberosRun
                         KeyUsage.Ticket,
                         b => KrbEncTicketPart.DecodeApplication(b));
                     Console.WriteLine("   * [Decrypted TGT]:");
-                    Display.PrintTicketEnc(ticketDecrypted);
+                    Displayer.PrintTicketEnc(ticketDecrypted);
                     //Encrypt the ticket again
                     asRep.Ticket.EncryptedPart = KrbEncryptedData.Encrypt(ticketDecrypted.EncodeApplication(),
                         krbtgtCred.CreateKey(), KeyUsage.Ticket);
@@ -275,14 +261,9 @@ namespace KerberosRun
 
         }
 
-        public string ToKirbi()
+        public override void ToFile()
         {
-            return Convert.ToBase64String(kirbiTGT);
-        }
-
-        public void ToFile()
-        {
-            Utils.WriteBytesToFile(Utils.MakeTicketFileName(Options.Instance.User), kirbiTGT);
+            Utils.WriteBytesToFile(Utils.MakeTicketFileName(Options.Instance.User), bKirbi);
         }
 
     }

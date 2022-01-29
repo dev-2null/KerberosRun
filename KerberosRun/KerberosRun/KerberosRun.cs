@@ -43,37 +43,37 @@ namespace KerberosRun
         {
             if (options.AskTGT)
             {
-                await GetTGTAsync();
+                await GetTGT();
             }
             else if (options.AskTGS)
             {
-                await GetTGSAsync();
+                await GetTGS();
             }
             else if (options.S4U2Self)
             {
-                await GetS4U2SelfAsync();
+                await GetS4U2Self();
             }
             else if (options.S4U)
             {
-                await GetS4U2ProxyAsync();
+                await GetS4U2Proxy();
             }
         }
 
-        public async Task<TGT> GetTGTAsync()
+        public async Task<TGT> GetTGT()
         {
             var tgt = new TGT();
-            await tgt.AskTGT();
-            tgt.DisplayTGT();
-            Console.WriteLine($"[Ticket] {tgt.ToKirbi()}");
+            await tgt.Ask();
+            tgt.Display();
+            tgt.DisplayTicket();
             return tgt;
         }
 
-        public async Task GetTGSAsync()
+        public async Task GetTGS()
         {
             TGS tgs;
             if (Ticket == null)
             {
-                var tgt = GetTGTAsync().Result;
+                var tgt = GetTGT().Result;
                 tgs = new TGS(tgt);
             }
             else
@@ -81,18 +81,18 @@ namespace KerberosRun
                 tgs = new TGS(Ticket);
             }
 
-            await tgs.AskTGS();
-            tgs.DisplayTGS();
-            Console.WriteLine($"[Ticket] {tgs.ToKirbi()}");
+            await tgs.Ask();
+            tgs.Display();
+            tgs.DisplayTicket();
         }
 
 
-        public async Task<S4U2Self> GetS4U2SelfAsync(TGT tgt = null)
+        public async Task<S4U2Self> GetS4U2Self(TGT tgt = null)
         {
             S4U2Self self;
             if (Ticket == null && tgt == null)
             {
-                tgt = GetTGTAsync().Result;
+                tgt = GetTGT().Result;
                 self = new S4U2Self(tgt);
             }
             else if (tgt != null)
@@ -103,31 +103,31 @@ namespace KerberosRun
             {
                 self = new S4U2Self(Ticket);
             }
-            await self.AskS4U2SelfAsync();
-            self.DisplayS4U2Self();
-            Console.WriteLine($"[Ticket] {self.ToKirbi()}");
+            await self.Ask();
+            self.Display();
+            self.DisplayTicket();
             return self;
         }
 
 
-        public async Task GetS4U2ProxyAsync()
+        public async Task GetS4U2Proxy()
         {
             S4U2Proxy proxy;
             if (Ticket == null)
             {
-                var tgt = GetTGTAsync().Result;
-                var self = GetS4U2SelfAsync(tgt).Result;
+                var tgt = GetTGT().Result;
+                var self = GetS4U2Self(tgt).Result;
                 proxy = new S4U2Proxy(tgt, self.s4u2selfTicket);
             }
             else
             {
-                var self = GetS4U2SelfAsync().Result;
+                var self = GetS4U2Self().Result;
                 proxy = new S4U2Proxy(Ticket, self.s4u2selfTicket);
 
             }
-            await proxy.AskS4U2ProxyAsync();
-            proxy.DisplayS4U2Proxy();
-            Console.WriteLine($"[Ticket] {proxy.ToKirbi()}");
+            await proxy.Ask();
+            proxy.Display();
+            proxy.DisplayTicket();
         }
 
     }

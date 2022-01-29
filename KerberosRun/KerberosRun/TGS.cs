@@ -14,38 +14,27 @@ using System.Threading.Tasks;
 
 namespace KerberosRun
 {
-    public class TGS
+    public class TGS: KerberosService
     {
-
-        private readonly DateTime now;
-        private readonly TcpKerberosTransport transport;
-        private KerberosCredential cred;
         private static KrbTicket tgt;
         private static KrbEncryptionKey sessionKey;
         private KrbEncryptionKey subSessionKey;
         private KrbTgsReq tgsReq;
         private KrbTgsRep tgsRep;
         private KrbEncTgsRepPart tgsDecryptedRepPart;
-        private byte[] kirbiTGS;
         private string clientName;
 
-        Logger logger;
 
-        public TGS(KrbTicket ticket, KrbEncryptionKey key)
+        public TGS(KrbTicket ticket, KrbEncryptionKey key) : base()
         {
-            logger = LogManager.GetCurrentClassLogger();
-            now = DateTime.Now;
-            transport = new TcpKerberosTransport(null);
-
             tgt = ticket;
             sessionKey = key;
-            cred = Helper.GetCredFromOption();
         }
 
 
         public TGS(TGT myTGT) : this(tgt, sessionKey)
         {
-            tgt = myTGT.Ticket;
+            tgt = myTGT.ticket;
             sessionKey = myTGT.sessionKey;
         }
 
@@ -58,7 +47,7 @@ namespace KerberosRun
         }
 
 
-        public void CreateTGSReq()
+        public override void Create()
         {
             //Request Service Ticket parameters
             ApOptions apOptions = ApOptions.Reserved;
@@ -233,14 +222,14 @@ namespace KerberosRun
         }
 
 
-        public async Task<KrbTgsRep> AskTGS()
+        public override async Task Ask()
         {
-            CreateTGSReq();
+            Create();
 
             var encodedTgs = tgsReq.EncodeApplication();
 
             logger.Info("[*] Sending TGS-REQ ...");
-            if (Options.Instance.Verbose) { Display.PrintReq(tgsReq, cred.CreateKey(), sessionKey.AsKey()); }
+            if (Options.Instance.Verbose) { Displayer.PrintReq(tgsReq, cred.CreateKey(), sessionKey.AsKey()); }
 
 
             CancellationToken cancellation = default;
@@ -262,7 +251,7 @@ namespace KerberosRun
 
 
             logger.Info("[*] Receiving TGS-REP ...");
-            if (Options.Instance.Verbose) { Display.PrintRep(tgsRep, cred.CreateKey()); }
+            if (Options.Instance.Verbose) { Displayer.PrintRep(tgsRep, cred.CreateKey()); }
 
 
 
@@ -284,12 +273,9 @@ namespace KerberosRun
                 tgsRep.Ticket.SName = subSrvName;
             }
 
-            kirbiTGS = Kirbi.GetKirbi(tgsRep, tgsDecryptedRepPart, Options.Instance.PTT);
+            bKirbi = Kirbi.GetKirbi(tgsRep, tgsDecryptedRepPart, Options.Instance.PTT);
 
             //var returnFlag = TicketFlags.Anonymous;
-
-
-            return tgsRep;
         }
 
 
@@ -305,15 +291,15 @@ namespace KerberosRun
         }
 
 
-        public void DisplayTGS()
+        public override void Display()
         {
             if (!Options.Instance.Verbose) { return; }
-            Display.PrintReq(tgsReq, cred.CreateKey(), sessionKey.AsKey());
+            Displayer.PrintReq(tgsReq, cred.CreateKey(), sessionKey.AsKey());
 
-            Display.PrintRep(tgsRep, cred.CreateKey());
+            Displayer.PrintRep(tgsRep, cred.CreateKey());
 
             Console.WriteLine("    * [Decrypted Enc-Part]:");
-            Display.PrintRepEnc(tgsDecryptedRepPart, cred.CreateKey());
+            Displayer.PrintRepEnc(tgsDecryptedRepPart, cred.CreateKey());
 
             if (!string.IsNullOrEmpty(Options.Instance.DecryptTGS))
             {
@@ -329,7 +315,7 @@ namespace KerberosRun
                     (ReadOnlyMemory<byte> t) => KrbEncTicketPart.DecodeApplication(t));
 
                 Console.WriteLine("    * [Decrypted Ticket Enc-Part]:");
-                Display.PrintTicketEnc(ticketDecrypted);
+                Displayer.PrintTicketEnc(ticketDecrypted);
                 //=========================================
 
             }
@@ -337,14 +323,9 @@ namespace KerberosRun
         }
 
 
-        public string ToKirbi()
+        public override void ToFile()
         {
-            return Convert.ToBase64String(kirbiTGS);
-        }
-
-        public void ToFile()
-        {
-            Utils.WriteBytesToFile(Utils.MakeTicketFileName(Options.Instance.User, Options.Instance.Spn.Split('/')), kirbiTGS);
+            Utils.WriteBytesToFile(Utils.MakeTicketFileName(Options.Instance.User, Options.Instance.Spn.Split('/')), bKirbi);
         }
 
 

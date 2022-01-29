@@ -1,5 +1,6 @@
 ﻿using System;
 using System.DirectoryServices.ActiveDirectory;
+using System.Threading.Tasks;
 using CommandLine;
 using Kerberos.NET.Entities;
 
@@ -8,9 +9,9 @@ namespace KerberosRun
     public class Program
     {
 
-        public static async System.Threading.Tasks.Task Main(string[] args)
+        public static async Task Main(string[] args)
         {
-            Display.PrintBanner();
+            Displayer.PrintBanner();
             var parser = new Parser(with =>
             {
                 with.CaseInsensitiveEnumValues = true;

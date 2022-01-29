@@ -6,7 +6,7 @@ using System.Text.RegularExpressions;
 
 namespace KerberosRun
 {
-    public class Display
+    public class Displayer
     {
 
 
@@ -18,7 +18,7 @@ namespace KerberosRun
             Console.WriteLine(@" /  '_/ -_) __/ _ \/ -_) __/ _ \(_-</ __/ // / _ \");
             Console.WriteLine(@"/_/\_\\__/_/ /_.__/\__/_/  \___/___/_/  \_,_/_//_/");
             Console.WriteLine();
-            Console.WriteLine(" by dev2null  v2.0.1");
+            Console.WriteLine(" by dev2null  v2.0.2");
             Console.WriteLine();
         }
         //PaData

@@ -22,11 +22,8 @@ namespace KerberosRun
     //is in the Service 1 account's ServicesAllowedToSendForwardedTicketsTo parameter. 
     //If it is, then the KDC replies with a service ticket for Service 2. 
     //Otherwise the KDC MUST return `KRB-ERR-BADOPTION`.
-    public class S4U2Proxy
+    public class S4U2Proxy: KerberosService
     {
-        private readonly DateTime now;
-        private readonly TcpKerberosTransport transport;
-        private KerberosCredential cred;
         private static KrbTicket tgt;
         private static KrbEncryptionKey sessionKey;
         private KrbTicket s4uTicket;
@@ -35,20 +32,13 @@ namespace KerberosRun
         private KrbTgsRep tgsRep;
         private KrbEncTgsRepPart tgsDecryptedRepPart;
         private string clientName;
-        private byte[] kirbiTGS;
 
-        Logger logger;
 
-        public S4U2Proxy(KrbTicket TGT, KrbEncryptionKey key, KrbTicket ticket)
+        public S4U2Proxy(KrbTicket TGT, KrbEncryptionKey key, KrbTicket ticket): base()
         {
-            logger = LogManager.GetCurrentClassLogger();
-            now = DateTime.Now;
-            transport = new TcpKerberosTransport(null);
-
             tgt = TGT;
             s4uTicket = ticket;
             sessionKey = key;
-            cred = Helper.GetCredFromOption();
         }
 
 
@@ -63,11 +53,11 @@ namespace KerberosRun
 
         public S4U2Proxy(TGT myTGT, KrbTicket ticket) : this(tgt, sessionKey, ticket)
         {
-            tgt = myTGT.Ticket;
+            tgt = myTGT.ticket;
             sessionKey = myTGT.sessionKey;
         }
 
-        public void CreateS4U2ProxyRequest()
+        public override void Create()
         {
             //Request Service Ticket parameters
 
@@ -236,14 +226,14 @@ namespace KerberosRun
 
 
 
-        public async Task<KrbTgsRep> AskS4U2ProxyAsync()
+        public override async Task Ask()
         {
-            CreateS4U2ProxyRequest();
+            Create();
 
             var encodedTgs = tgsReq.EncodeApplication();
 
             logger.Info("[*] Sending TGS-REQ [S4U2Proxy] ...");
-            if (Options.Instance.Verbose) { Display.PrintReq(tgsReq, cred.CreateKey(), sessionKey.AsKey()); }
+            if (Options.Instance.Verbose) { Displayer.PrintReq(tgsReq, cred.CreateKey(), sessionKey.AsKey()); }
 
             CancellationToken cancellation = default;
             cancellation.ThrowIfCancellationRequested();
@@ -272,35 +262,25 @@ namespace KerberosRun
                     KeyUsage.EncTgsRepPartSubSessionKey,
                     (ReadOnlyMemory<byte> t) => KrbEncTgsRepPart.DecodeApplication(t));
 
-            kirbiTGS = Kirbi.GetKirbi(tgsRep, tgsDecryptedRepPart, Options.Instance.PTT);
-
-
-            return tgsRep;
-
+            bKirbi = Kirbi.GetKirbi(tgsRep, tgsDecryptedRepPart, Options.Instance.PTT);
 
         }
 
 
 
-        public void DisplayS4U2Proxy()
+        public override void Display()
         {
             if (!Options.Instance.Verbose) { return; }
 
-            Display.PrintRep(tgsRep, cred.CreateKey());
+            Displayer.PrintRep(tgsRep, cred.CreateKey());
 
             Console.WriteLine("    * [Decrypted Enc-Part]:");
-            Display.PrintRepEnc(tgsDecryptedRepPart, cred.CreateKey());
+            Displayer.PrintRepEnc(tgsDecryptedRepPart, cred.CreateKey());
         }
 
-
-        public string ToKirbi()
+        public override void ToFile()
         {
-            return Convert.ToBase64String(kirbiTGS);
-        }
-
-        public void ToFile()
-        {
-            Utils.WriteBytesToFile(Utils.MakeTicketFileName(Options.Instance.ImpersonateUser, Options.Instance.Spn.Split('/')), kirbiTGS);
+            Utils.WriteBytesToFile(Utils.MakeTicketFileName(Options.Instance.ImpersonateUser, Options.Instance.Spn.Split('/')), bKirbi);
         }
 
 

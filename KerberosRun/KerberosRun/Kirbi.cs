@@ -275,7 +275,7 @@ namespace KerberosRun
             if (verbose)
             {
                 Console.WriteLine("[*] Ticket Info:");
-                Display.PrintKirbi(kirbiString);
+                Displayer.PrintKirbi(kirbiString);
             }
 
 
@@ -392,7 +392,7 @@ namespace KerberosRun
             if (verbose) 
             {
                 Console.WriteLine("[*] Ticket Info:");
-                Display.PrintKirbi(kirbiString); 
+                Displayer.PrintKirbi(kirbiString); 
             }
 
 
