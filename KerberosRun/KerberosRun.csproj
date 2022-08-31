@@ -1,0 +1,84 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">anycpu</Platform>
+    <ProjectGuid>{00A1C81F-FAE9-4F80-9F7B-88C16C41DB2A}</ProjectGuid>
+    <OutputType>Exe</OutputType>
+    <RootNamespace>KerberosRun</RootNamespace>
+    <AssemblyName>KerberosRun</AssemblyName>
+    <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
+    <NuGetPackageImportStamp>
+    </NuGetPackageImportStamp>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|anycpu' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug</OutputPath>
+    <DefineConstants>DEBUG;</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <ExternalConsole>true</ExternalConsole>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|anycpu' ">
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release</OutputPath>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <ExternalConsole>true</ExternalConsole>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="mscorlib" />
+    <Reference Include="System.DirectoryServices" />
+    <Reference Include="System.IdentityModel" />
+    <Reference Include="System.Numerics" />
+    <Reference Include="System.Security" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Roast.cs" />
+    <Compile Include="KerberosService.cs" />
+    <Compile Include="KerberosRun.cs" />
+    <Compile Include="Logging.cs" />
+    <Compile Include="TGS.cs" />
+    <Compile Include="TGT.cs" />
+    <Compile Include="BuildTicket.cs" />
+    <Compile Include="Helper.cs" />
+    <Compile Include="Options.cs" />
+    <Compile Include="Pac.cs" />
+    <Compile Include="Utils\Interop.cs" />
+    <Compile Include="Utils\KerberosHashCreds.cs" />
+    <Compile Include="Utils\LSA.cs" />
+    <Compile Include="Utils\LUID.cs" />
+    <Compile Include="Program.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="KrbConstants.cs" />
+    <Compile Include="Displayer.cs" />
+    <Compile Include="Kirbi.cs" />
+    <Compile Include="Utils\Utils.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="app.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="CommandLineParser">
+      <Version>2.8.0</Version>
+    </PackageReference>
+    <PackageReference Include="Costura.Fody" PrivateAssets="All">
+      <Version>4.1.0</Version>
+    </PackageReference>
+    <PackageReference Include="Fody">
+      <Version>6.2.4</Version>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
+    <PackageReference Include="Kerberos.NET">
+      <Version>4.5.3</Version>
+    </PackageReference>
+    <PackageReference Include="NLog">
+      <Version>4.7.13</Version>
+    </PackageReference>
+  </ItemGroup>
+  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+</Project>
