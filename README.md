@@ -26,13 +26,15 @@ PS C:\Users\dev2null\Desktop> .\KerberosRun.exe
 
     asktgt      --User user --Pass pass|--RC4 Hash|--AES128 Hash|--AES256 Hash [--Domain domain] [--NoPAC] [--Verbose] [--Outfile] [--PTT]
 
-    asktgs      --User user --Pass pass --SPN Svc/Host|--SPNs Svc1/Host1,Svc2/Host2 [--AltService SvcAlt/Host] [--Domain domain] [--TargetDomain targetdomain] [--Ticket Base64Kirbi] [--NoPAC] [--Verbose] [--Outfile] [--PTT]
+    asktgs      --SPN Svc/Host|--SPNs Svc1/Host1,Svc2/Host2 [--User user] [--Pass pass|--RC4 Hash|--AES128 Hash|--AES256 Hash] [--AltService SvcAlt/Host] [--Domain domain] [--TargetDomain targetdomain] [--Ticket Base64Kirbi] [--NoPAC] [--Verbose] [--Outfile] [--PTT]
 
-    s4u2self    --User user --Pass pass --ImperonsateUser ipuser [--Domain domain] [--NoPAC] [--Verbose] [--Outfile] [--PTT]
+    s4u2self    --User user --ImperonsateUser ipuser [--Pass pass|--RC4 Hash|--AES128 Hash|--AES256 Hash] [--Domain domain] [--Ticket Base64Kirbi] [--NoPAC] [--Verbose] [--Outfile] [--PTT]
 
-    s4u         --User user --Pass pass --ImperonsateUser ipuser --SPN Svc/Host [--AltService SvcAlt/Host] [--Domain domain] [--NoPAC] [--Verbose] [--Outfile] [--PTT]
+    s4u         --User user --ImperonsateUser ipuser --SPN Svc/Host [--Pass pass|--RC4 Hash|--AES128 Hash|--AES256 Hash] [--AltService SvcAlt/Host] [--Domain domain] [--Ticket Base64Kirbi] [--NoPAC] [--Verbose] [--Outfile] [--PTT]
 
-    kerberoast  [--User user] [--Pass pass] --SPN Svc/Host|--SPNs Svc1/Host1,Svc2/Host2
+    u2u         --User user --TargetUser tuser --TargetTGT Base64TGT [--PACUser pacuser] [--Pass pass|--RC4 Hash|--AES128 Hash|--AES256 Hash] [--Ticket Base64Kirbi] [--NoPAC] [--Verbose] [--Outfile] [--PTT]
+
+    kerberoast  [--User user] [--Pass pass|--RC4 Hash|--AES128 Hash|--AES256 Hash] --SPN Svc/Host|--SPNs Svc1/Host1,Svc2/Host2
 
     asreproast  --Target user [--Format hashcat/john]
 
