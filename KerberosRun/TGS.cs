@@ -105,6 +105,7 @@ namespace KerberosRun
             EncryptionType[] etype = KrbConstants.KerberosConstants.ETypes.ToArray();//KerberosRun.OpSec ? KrbConstants.KerberosConstants.ETypes.ToArray() : new[] { EncryptionType.RC4_HMAC_NT };
 
             var name = string.IsNullOrEmpty(KerberosRun.User) ? new string[] { clientName } : new string[] { KerberosRun.User };
+
             KrbPrincipalName cname = new KrbPrincipalName()
             {
                 Type = PrincipalNameType.NT_PRINCIPAL,
@@ -230,12 +231,12 @@ namespace KerberosRun
             };
 
 
-
-            if (!string.IsNullOrWhiteSpace(rst.S4uTarget) || (rst.UserToUserTicket != null))
+            //Only include PA_FOR_USER when perform U2U for self to self
+            if (!string.IsNullOrWhiteSpace(rst.S4uTarget) || ((rst.UserToUserTicket != null) && (KerberosRun.U2UTarget == KerberosRun.User)))
             {
                 KrbPaForUser paS4u;
 
-                //U2U
+                //U2U 
                 if (rst.UserToUserTicket != null)
                 {
                     paS4u = new KrbPaForUser

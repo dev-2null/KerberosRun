@@ -290,10 +290,9 @@ namespace KerberosRun
 
         public int GetU2U(out TGS tgs, bool displayTicket = true)
         {
-            TGT tgt = null;
             if (Ticket == null)
             {
-                GetTGT(out tgt, displayTicket);
+                GetTGT(out TGT tgt, displayTicket);
                 tgs = new TGS(tgt);
             }
             else
