@@ -63,7 +63,10 @@ namespace KerberosRun
 
             //when performing S4U2Proxy, this should be null
             string s4u = (KerberosRun.S4UTicket == null) ? KerberosRun.ImpersonateUser : null;
-            KrbTicket u2uServerTicket = null;
+
+            //U2U requires EncTktInSkey in KDC options
+            KrbTicket u2uServerTicket = KerberosRun.U2UTicket ?? null;
+            if (u2uServerTicket != null) { kdcOptions |= KdcOptions.EncTktInSkey; }
 
             //if (isUnconstrained)
             //{
@@ -82,8 +85,7 @@ namespace KerberosRun
                 Realm = domain
             };
 
-            //var additionalTickets = new List<KrbTicket>();
-
+            
             if (rst.KdcOptions.HasFlag(KdcOptions.EncTktInSkey) && rst.UserToUserTicket != null)
             {
                 additionalTickets.Add(rst.UserToUserTicket);
@@ -102,35 +104,44 @@ namespace KerberosRun
 
             EncryptionType[] etype = KrbConstants.KerberosConstants.ETypes.ToArray();//KerberosRun.OpSec ? KrbConstants.KerberosConstants.ETypes.ToArray() : new[] { EncryptionType.RC4_HMAC_NT };
 
-
-            
             var name = string.IsNullOrEmpty(KerberosRun.User) ? new string[] { clientName } : new string[] { KerberosRun.User };
             KrbPrincipalName cname = new KrbPrincipalName()
             {
                 Type = PrincipalNameType.NT_PRINCIPAL,
-                //Type = (PrincipalNameType)Utils.Utils.PrincipalNameType.NT_MS_PRINCIPAL,
                 Name = name
             };
 
-            KrbPrincipalName sname = null;
-            //check if we are performing S4U2Proxy or just TGS/S4U2Self
+            KrbPrincipalName sname;
+            //TGS / S4U2Self / U2U
             if (KerberosRun.S4UTicket == null)
             {
-                //if we are not impersonating, we are requesting SPN
-                string[] sn = string.IsNullOrEmpty(KerberosRun.ImpersonateUser) ? rst.ServicePrincipalName.Split('/', '@') : new string[] { KerberosRun.User };
-                sname = new KrbPrincipalName()
+                //U2U
+                if (u2uServerTicket != null)
                 {
-                    Type = PrincipalNameType.NT_PRINCIPAL,
-                    //Type = (PrincipalNameType)Utils.Utils.PrincipalNameType.NT_MS_PRINCIPAL,
-                    Name = sn
-                };
+                    sname = new KrbPrincipalName()
+                    {
+                        Type = PrincipalNameType.NT_PRINCIPAL,
+                        Name = new string[] { KerberosRun.U2UTarget } 
+                    };
+                }
+                //TGS / S4U2Self
+                else
+                {
+                    //if we are not impersonating, we are requesting SPN
+                    string[] sn = string.IsNullOrEmpty(KerberosRun.ImpersonateUser) ? rst.ServicePrincipalName.Split('/', '@') : new string[] { KerberosRun.User };
+                    sname = new KrbPrincipalName()
+                    {
+                        Type = PrincipalNameType.NT_PRINCIPAL,
+                        Name = sn
+                    };
+                }
             }
+            //S4U2Proxy
             else
             {
                 sname = new KrbPrincipalName()
                 {
                     Type = PrincipalNameType.NT_PRINCIPAL,
-                    //Type = (PrincipalNameType)Utils.Utils.PrincipalNameType.NT_MS_PRINCIPAL,
                     Name = rst.ServicePrincipalName.Split('/', '@')
                 };
             }
@@ -161,7 +172,6 @@ namespace KerberosRun
 
             //ApReq
             //Authenticator
-
 
             var authenticator = new KrbAuthenticator
             {
@@ -221,14 +231,35 @@ namespace KerberosRun
 
 
 
-            if (!string.IsNullOrWhiteSpace(rst.S4uTarget))
+            if (!string.IsNullOrWhiteSpace(rst.S4uTarget) || (rst.UserToUserTicket != null))
             {
-                var paS4u = new KrbPaForUser
+                KrbPaForUser paS4u;
+
+                //U2U
+                if (rst.UserToUserTicket != null)
                 {
-                    AuthPackage = "Kerberos",
-                    UserName = new KrbPrincipalName { Type = PrincipalNameType.NT_ENTERPRISE, Name = new[] { s4u } },
-                    UserRealm = KerberosRun.Domain
-                };
+                    paS4u = new KrbPaForUser
+                    {
+                        AuthPackage = "Kerberos",
+                        UserName = new KrbPrincipalName()
+                        {
+                            Type = PrincipalNameType.NT_PRINCIPAL,
+                            Name = new string[] { KerberosRun.U2UPACUser }
+                        },
+                        UserRealm = KerberosRun.Domain
+                    };
+                }
+                //S4U2Self
+                else
+                {
+                    paS4u = new KrbPaForUser
+                    {
+                        AuthPackage = "Kerberos",
+                        UserName = new KrbPrincipalName { Type = PrincipalNameType.NT_ENTERPRISE, Name = new[] { s4u } },
+                        UserRealm = KerberosRun.Domain
+                    };
+                }
+                
 
                 //TGS accepts sessionKey/subSessionKey whereas S4U2Self only accepts sessionKey, otherwise KRB_AP_ERR_MODIFIED
                 paS4u.GenerateChecksum(sessionKey.AsKey());
@@ -352,6 +383,16 @@ namespace KerberosRun
                 Console.WriteLine("    * [Decrypted Ticket Enc-Part]:");
                 Displayer.PrintTicketEnc(ticketDecrypted);
             }
+            if (KerberosRun.U2UTarget != null)
+            {
+                KrbEncTicketPart ticketDecrypted = tgsRep.Ticket.EncryptedPart.Decrypt(
+                    KerberosRun.U2USessionKey.AsKey(),
+                    KeyUsage.Ticket,
+                    (ReadOnlyMemory<byte> t) => KrbEncTicketPart.DecodeApplication(t));
+                Console.WriteLine("    * [Decrypted Ticket Enc-Part]:");
+                Displayer.PrintTicketEnc(ticketDecrypted);
+            }
+
 
         }
 

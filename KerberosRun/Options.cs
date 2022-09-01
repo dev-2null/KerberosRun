@@ -101,6 +101,19 @@ namespace KerberosRun
         public string ImpersonateUser { get; set; }
     }
 
+    [Verb("u2u", HelpText = "Perform S4U2Self.")]
+    class U2UOptions : Options
+    {
+        [Option("TargetUser", Required = true, HelpText = "Target User for U2U")]
+        public string TargetUser { get; set; }
+
+        [Option("TargetTGT", Required = true, HelpText = "TGT for U2U")]
+        public string TargetTGT { get; set; }
+
+        [Option("PACUser", Default = null, HelpText = "U2U Ticket with the PACUser's PAC")]
+        public string PACUser { get; set; }
+    }
+
 
     [Verb("kerberoast", HelpText = "Perform Kerberoasting.")]
     class KerberoastOptions : Options

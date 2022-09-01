@@ -47,6 +47,11 @@ namespace KerberosRun
         private static TGT KrbTGT = null;
         private static bool KrbTGTIsReferral = false;
         internal static KrbTicket S4UTicket = null;
+        internal static KrbTicket U2UTicket = null;
+        internal static string U2UTarget;
+        internal static string U2UTGT;
+        internal static string U2UPACUser;
+        internal static KrbEncryptionKey U2USessionKey;
 
         public KerberosRun(Options options)
         {
@@ -106,6 +111,12 @@ namespace KerberosRun
             else if (options is S4U2SelfOptions sfopts)
             {
                 ImpersonateUser = sfopts.ImpersonateUser;
+            }
+            else if (options is U2UOptions uuopts)
+            {
+                U2UTGT = uuopts.TargetTGT;
+                U2UTarget = uuopts.TargetUser;
+                U2UPACUser = uuopts.PACUser ?? U2UTarget;
             }
 
             else if (options is GoldentOptions gtopts)
@@ -200,7 +211,7 @@ namespace KerberosRun
   
         public int GetTargetTGS(out TGS tgs, bool displayTicket = true)
         {
-            if (User == null || (SPN == null)) { tgs = null; return 1; }
+            if ((Ticket == null && User == null) || (SPN == null)) { tgs = null; return 1; }
 
             if (Ticket == null)
             {
@@ -275,6 +286,29 @@ namespace KerberosRun
             return 0;
         }
 
+
+
+        public int GetU2U(out TGS tgs, bool displayTicket = true)
+        {
+            TGT tgt = null;
+            if (Ticket == null)
+            {
+                GetTGT(out tgt, displayTicket);
+                tgs = new TGS(tgt);
+            }
+            else
+            {
+                tgs = new TGS(Ticket);
+            }
+
+            var U2UKirbi = Kirbi.GetTicketFromKirbi(U2UTGT);
+            U2UTicket = U2UKirbi.Ticket;
+            U2USessionKey = U2UKirbi.SessionKey;
+
+            GetKerberosService(tgs, displayTicket);
+
+            return 0;
+        }
 
 
         public int Kerberoasting()
