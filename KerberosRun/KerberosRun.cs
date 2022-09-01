@@ -222,7 +222,7 @@ namespace KerberosRun
                 KrbTGTIsReferral = true;
 
                 tgs = new TGS(KrbTGT);
-                GetDomainTGS(tgs, displayTicket, tgs.isReferral);
+                GetDomainTGS(tgs, displayTicket, KrbTGTIsReferral);
             }
             return 0;
         }
