@@ -25,7 +25,6 @@ namespace KerberosRun
         internal KrbEncryptionKey referralSessionKey;
         internal List<KrbTicket>  additionalTickets = new List<KrbTicket>();
         private KrbEncTgsRepPart tgsDecryptedRepPart;
-        private string clientName;
         internal static string domain;
 
 
@@ -48,7 +47,8 @@ namespace KerberosRun
             var info = Kirbi.GetTicketFromKirbi(tgtKirbi);
             tgt = info.Ticket;
             sessionKey = info.SessionKey;
-            clientName = info.CNAME;
+            KerberosRun.User = info.CNAME;
+            cred = Helper.GetCredFromOption();
         }
 
 
@@ -102,14 +102,12 @@ namespace KerberosRun
             }
 
 
-            EncryptionType[] etype = KrbConstants.KerberosConstants.ETypes.ToArray();//KerberosRun.OpSec ? KrbConstants.KerberosConstants.ETypes.ToArray() : new[] { EncryptionType.RC4_HMAC_NT };
-
-            var name = string.IsNullOrEmpty(KerberosRun.User) ? new string[] { clientName } : new string[] { KerberosRun.User };
+            EncryptionType[] etype = KerberosRun.UseRC4 ? new[] { EncryptionType.RC4_HMAC_NT } : KrbConstants.KerberosConstants.ETypes.ToArray();//KerberosRun.OpSec ? KrbConstants.KerberosConstants.ETypes.ToArray() : new[] { EncryptionType.RC4_HMAC_NT };
 
             KrbPrincipalName cname = new KrbPrincipalName()
             {
                 Type = PrincipalNameType.NT_PRINCIPAL,
-                Name = name
+                Name = new string[] { KerberosRun.User }
             };
 
             KrbPrincipalName sname;
@@ -150,7 +148,6 @@ namespace KerberosRun
 
             var body = new KrbKdcReqBody
             {
-                //Specify RC4 as the only supported EType
                 EType = etype,
                 KdcOptions = rst.KdcOptions,
                 Nonce = KrbConstants.KerberosConstants.GetNonce(),
@@ -289,7 +286,7 @@ namespace KerberosRun
 
             var encodedTgs = tgsReq.EncodeApplication();
 
-            logger.Info("[*] Sending TGS-REQ ...");
+            logger.Info("[*] Sending TGS-REQ to {0}...", KerberosRun.DC);
             if (KerberosRun.Verbose) { Displayer.PrintReq(tgsReq, cred.CreateKey(), sessionKey.AsKey()); }
 
             CancellationToken cancellation = default;
@@ -298,7 +295,7 @@ namespace KerberosRun
             try
             {
                 tgsRep = await transport.SendMessage<KrbTgsRep>(
-                    domain,
+                    KerberosRun.DC,
                     encodedTgs,
                     cancellation
                 );

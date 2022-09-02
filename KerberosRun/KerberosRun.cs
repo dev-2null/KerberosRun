@@ -11,6 +11,7 @@ namespace KerberosRun
     public class KerberosRun
     {
         public static string Domain;
+        public static string DC;
         public static string User;
         internal static string Pass;
         internal static string UserHash = null;
@@ -22,6 +23,7 @@ namespace KerberosRun
         public static string SrvName;
         public static string AltService;
         public static bool OpSec;
+        public static bool UseRC4;
 
         public static string RC4;
         public static string AES128;
@@ -56,12 +58,13 @@ namespace KerberosRun
         public KerberosRun(Options options)
         {
             Domain = options.Domain ?? Environment.GetEnvironmentVariable("USERDNSDOMAIN");
+            DC = options.DC ?? Domain;
             TargetDomain = options.TargetDomain ?? Domain;
             User = options.User;
             Pass = options.Pass;
             Ticket = options.Ticket;
             DecryptTGS = options.DecryptTGS;
-            SrvName = options.SrvName;
+            SrvName = options.SvcName;
             AltService = options.AltService;
             RC4 = options.RC4;
             AES128 = options.AES128;
@@ -72,6 +75,8 @@ namespace KerberosRun
             Verbose = options.Verbose;
             Debug = options.Debug;
             OpSec = options.OpSec;
+            UseRC4 = options.UseRC4;
+            
 
             UserHash = RC4 ?? UserHash;
             UserEType = (RC4 == null) ? UserEType : EncryptionType.RC4_HMAC_NT;
@@ -336,7 +341,7 @@ namespace KerberosRun
 
             var roast = new Roast();
 
-            if (User == null)
+            if (UserHash == null && Pass == null)
             {
                 roast.Kerberoast();
             }

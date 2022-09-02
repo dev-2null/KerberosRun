@@ -11,6 +11,9 @@ namespace KerberosRun
         [Option("Domain", Default = null, HelpText = "Domain Name")]
         public string Domain { get; set; }
 
+        [Option("DC", Default = null, HelpText = "Domain Controller")]
+        public string DC { get; set; }
+
         [Option("User", Default = null, HelpText = "Username")]
         public string User { get; set; }
 
@@ -29,12 +32,14 @@ namespace KerberosRun
         [Option("DecryptTGS", Default = null, HelpText = "Decrypt TGS")]
         public string DecryptTGS { get; set; }
 
-        [Option("SrvName", Default = null, HelpText = "Service Account Name for decrypting TGS")]
-        public string SrvName { get; set; }
+        [Option("SvcName", Default = null, HelpText = "Service Account Name for decrypting TGS")]
+        public string SvcName { get; set; }
 
         [Option("AltService", Default = null, HelpText = "Change the service name for a ticket")]
         public string AltService { get; set; }
 
+        [Option("UseRC4", Default = false, HelpText = "Only include RC4 for TGT/TGS request")]
+        public bool UseRC4 { get; set; }
 
 
         [Option("RC4", Default = null, HelpText = "RC4 Hash")]

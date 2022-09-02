@@ -37,6 +37,7 @@
     <Reference Include="System.Security" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="KrbTcp.cs" />
     <Compile Include="Roast.cs" />
     <Compile Include="KerberosService.cs" />
     <Compile Include="KerberosRun.cs" />

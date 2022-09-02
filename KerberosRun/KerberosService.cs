@@ -10,7 +10,7 @@ namespace KerberosRun
     public abstract class KerberosService
     {
         protected Logger logger;
-        protected readonly TcpKerberosTransport transport;
+        protected readonly KrbTcp transport;
         internal KerberosCredential cred;
         protected byte[] bKirbi;
         internal readonly DateTime now;
@@ -21,7 +21,7 @@ namespace KerberosRun
         {
             logger = LogManager.GetCurrentClassLogger();
             now = DateTime.Now;
-            transport = new TcpKerberosTransport(null);
+            transport = new KrbTcp(null);
             cred = Helper.GetCredFromOption();
         }
         public abstract Task Ask();

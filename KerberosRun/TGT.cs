@@ -75,7 +75,7 @@ namespace KerberosRun
                     //   PrincipalNameType.NT_ENTERPRISE,
                     //    domainName
                     //),
-                    EType = KerberosRun.OpSec ? KrbConstants.KerberosConstants.ETypes.ToArray() : new[] { EncryptionType.RC4_HMAC_NT },//KrbConstants.KerberosConstants.ETypes.ToArray(),//kdcReqEtype, 
+                    EType = KerberosRun.UseRC4 ? new[] { EncryptionType.RC4_HMAC_NT } : KrbConstants.KerberosConstants.ETypes.ToArray(),//KrbConstants.KerberosConstants.ETypes.ToArray(),//kdcReqEtype, 
                     KdcOptions = kdcOptions,
                     Nonce = KrbConstants.KerberosConstants.GetNonce(),
                     RTime = KrbConstants.KerberosConstants.EndOfTime,
@@ -134,14 +134,14 @@ namespace KerberosRun
             {
                 try
                 {
-                    logger.Info("[*] Sending AS-REQ ...");
+                    logger.Info("[*] Sending AS-REQ to {0}...", KerberosRun.DC);
 
                     Create();
 
                     var asReq = asReqMessage.EncodeApplication();
         
                     asRep = await transport.SendMessage<KrbAsRep>(
-                        cred.Domain,
+                        KerberosRun.DC,
                         asReq,
                         default);
                     logger.Info("[*] Receiving AS-REP...");
