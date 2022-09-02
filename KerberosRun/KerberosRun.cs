@@ -24,6 +24,7 @@ namespace KerberosRun
         public static string AltService;
         public static bool OpSec;
         public static bool UseRC4;
+        public static string DelegateSPN;
 
         public static string RC4;
         public static string AES128;
@@ -76,7 +77,7 @@ namespace KerberosRun
             Debug = options.Debug;
             OpSec = options.OpSec;
             UseRC4 = options.UseRC4;
-            
+            DelegateSPN = options.TGTDeleg;
 
             UserHash = RC4 ?? UserHash;
             UserEType = (RC4 == null) ? UserEType : EncryptionType.RC4_HMAC_NT;
@@ -182,6 +183,14 @@ namespace KerberosRun
             //check if there's already a TGT from the previous AS/TGS exchange 
             if (KrbTGT != null) { tgt = KrbTGT; return 0; }
 
+            if (DelegateSPN != null)
+            {
+                tgt = new TGT();
+                tgt.GetDelegateTGT(displayTicket);
+                KrbTGT = tgt;
+                return 0;
+            }
+
             if (User == null) { tgt = null; return 0; }
 
             tgt = new TGT();
@@ -216,7 +225,7 @@ namespace KerberosRun
   
         public int GetTargetTGS(out TGS tgs, bool displayTicket = true)
         {
-            if ((Ticket == null && User == null) || (SPN == null)) { tgs = null; return 1; }
+            if ((Ticket == null && User == null && DelegateSPN == null) || (SPN == null)) { tgs = null; return 1; }
 
             if (Ticket == null)
             {
@@ -337,11 +346,11 @@ namespace KerberosRun
 
         public int SingleKerberoasting()
         {
-            if (User == null && SPN == null && SPNs == null) { return 0; }
+            if (User == null && SPN == null && SPNs == null && DelegateSPN == null) { return 0; }
 
             var roast = new Roast();
 
-            if (UserHash == null && Pass == null)
+            if (UserHash == null && Pass == null && DelegateSPN == null)
             {
                 roast.Kerberoast();
             }

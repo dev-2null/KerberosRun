@@ -41,6 +41,9 @@ namespace KerberosRun
         [Option("UseRC4", Default = false, HelpText = "Only include RC4 for TGT/TGS request")]
         public bool UseRC4 { get; set; }
 
+        [Option("TGTDeleg", Default = null, HelpText = "SPN for delegate TGT")]
+        public string TGTDeleg { get; set; }
+
 
         [Option("RC4", Default = null, HelpText = "RC4 Hash")]
         public string RC4 { get; set; }

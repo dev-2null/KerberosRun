@@ -32,7 +32,7 @@ namespace KerberosRun
         }
         public void DisplayTicket()
         {
-            logger.Info($"[*] Ticket: {KerberosRun.SPN}");
+            logger.Info($"[*] Ticket: {string.Join("/", ticket.SName.Name)}");
             Console.WriteLine($"    {ToKirbi()}");
         }
         public abstract void ToFile();

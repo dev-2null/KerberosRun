@@ -14,12 +14,6 @@ namespace KerberosRun
     public class Roast
     {
         protected Logger logger;
-        private static readonly Dictionary<string, Func<GssApiToken, ContextToken>> KnownMessageTypes = new Dictionary<string, Func<GssApiToken, ContextToken>>{
-                { MechType.SPNEGO, e => new NegotiateContextToken(e) },
-                { MechType.NEGOEX, e => new NegotiateContextToken(e) },
-                { MechType.KerberosV5, e => new KerberosContextToken(e) },
-                { MechType.KerberosV5Legacy, e => new KerberosContextToken(e) },
-                { MechType.KerberosUser2User, e => new KerberosUser2UserContextToken(e) } };
         public Roast()
         {
             logger = LogManager.GetCurrentClassLogger();
@@ -48,7 +42,7 @@ namespace KerberosRun
 
             var mechType = gssToken.ThisMech.Value;
 
-            if (!KnownMessageTypes.TryGetValue(mechType, out Func<GssApiToken, ContextToken> tokenFunc))
+            if (!Utils.KnownMessageTypes.TryGetValue(mechType, out Func<GssApiToken, ContextToken> tokenFunc))
             {
                 throw new UnknownMechTypeException(mechType);
             }

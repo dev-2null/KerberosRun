@@ -1,5 +1,7 @@
-﻿using NLog;
+﻿using Kerberos.NET.Entities;
+using NLog;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Text.RegularExpressions;
 
@@ -96,5 +98,12 @@ namespace KerberosRun
 
             return result;
         }
+
+        public static readonly Dictionary<string, Func<GssApiToken, ContextToken>> KnownMessageTypes = new Dictionary<string, Func<GssApiToken, ContextToken>>{
+                { MechType.SPNEGO, e => new NegotiateContextToken(e) },
+                { MechType.NEGOEX, e => new NegotiateContextToken(e) },
+                { MechType.KerberosV5, e => new KerberosContextToken(e) },
+                { MechType.KerberosV5Legacy, e => new KerberosContextToken(e) },
+                { MechType.KerberosUser2User, e => new KerberosUser2UserContextToken(e) } };
     }
 }

@@ -404,7 +404,26 @@ namespace KerberosRun
     
     
 
-        public static KIIRBIINFO GetTicketFromKirbi(string kirbi)
+
+        public static byte[] GetKirbi(KrbTicket ticket, KrbEncKrbCredPart krbCredPart)
+        {
+            var encryptedData = new KrbEncryptedData()
+            {
+                Cipher = krbCredPart.EncodeApplication(),
+            };
+
+            var krbCred = new KrbCred
+            {
+                Tickets = new KrbTicket[] { ticket },
+                EncryptedPart = encryptedData
+            };
+
+            var bKirbi = krbCred.EncodeApplication().ToArray();
+
+            return bKirbi;
+        }
+
+        public static KirbiInfo GetTicketFromKirbi(string kirbi)
         {
             try
             {
@@ -418,7 +437,7 @@ namespace KerberosRun
                 var sessionKey = encCredPart.TicketInfo[0].Key;
                 string cname = encCredPart.TicketInfo[0].PName.Name[0];
 
-                return new KIIRBIINFO { 
+                return new KirbiInfo { 
                     Ticket = tgt,
                     SessionKey = sessionKey,
                     CNAME = cname
@@ -429,10 +448,10 @@ namespace KerberosRun
                 logger.Error("[x] {0}", e.Message);
                 Environment.Exit(1);
             }
-            return new KIIRBIINFO { };
+            return new KirbiInfo { };
         }
 
-        public struct KIIRBIINFO
+        public struct KirbiInfo
         {
             public KrbTicket Ticket;
             public KrbEncryptionKey SessionKey;
