@@ -281,7 +281,7 @@ namespace KerberosRun
         public override async Task Ask()
         {
             domain = isReferral ? KerberosRun.TargetDomain : KerberosRun.Domain;
-
+            
             Create();
 
             var encodedTgs = tgsReq.EncodeApplication();
@@ -295,7 +295,7 @@ namespace KerberosRun
             try
             {
                 tgsRep = await transport.SendMessage<KrbTgsRep>(
-                    KerberosRun.DC,
+                    KerberosRun.DC ?? domain,
                     encodedTgs,
                     cancellation
                 );

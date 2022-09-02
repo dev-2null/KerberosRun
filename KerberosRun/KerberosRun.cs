@@ -58,7 +58,7 @@ namespace KerberosRun
         public KerberosRun(Options options)
         {
             Domain = options.Domain ?? Environment.GetEnvironmentVariable("USERDNSDOMAIN");
-            DC = options.DC ?? Domain;
+            DC = options.DC;
             TargetDomain = options.TargetDomain ?? Domain;
             User = options.User;
             Pass = options.Pass;

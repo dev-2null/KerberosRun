@@ -126,6 +126,7 @@ namespace KerberosRun
 
         public override async Task Ask()
         {
+
             logger.Info("[*] Starting Kerberos Authentication ...");
             //Pre-Auth
             bool notPreauth = true;
@@ -141,7 +142,7 @@ namespace KerberosRun
                     var asReq = asReqMessage.EncodeApplication();
         
                     asRep = await transport.SendMessage<KrbAsRep>(
-                        KerberosRun.DC,
+                        KerberosRun.DC ?? KerberosRun.Domain,
                         asReq,
                         default);
                     logger.Info("[*] Receiving AS-REP...");
