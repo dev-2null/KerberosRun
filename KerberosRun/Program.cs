@@ -52,7 +52,7 @@ namespace KerberosRun
 
             var help = @"
 
-    asktgt      [--User user] [--Pass pass|--RC4 Hash|--AES128 Hash|--AES256 Hash] [--TGTDeleg CIFS/DC] [--Domain domain] [--DC dc] [--UseRC4] [--NoPAC] [--Verbose] [--Outfile] [--PTT]
+    asktgt      [--User user] [--Pass pass|--RC4 Hash|--AES128 Hash|--AES256 Hash] [--TGTDeleg CIFS/DC] [--Domain domain] [--DC dc] [--NoPAC] [--Verbose] [--Outfile] [--PTT]
     
     asktgs      --SPN Svc/Host|--SPNs Svc1/Host1,Svc2/Host2 [--User user] [--Pass pass|--RC4 Hash|--AES128 Hash|--AES256 Hash|--Ticket Base64Kirbi] [--TGTDeleg CIFS/DC] [--AltService SvcAlt/Host] [--Domain domain] [--DC dc] [--UseRC4] [--TargetDomain targetdomain] [--NoPAC] [--Verbose] [--Outfile] [--PTT]
 

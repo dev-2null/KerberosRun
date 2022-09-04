@@ -79,7 +79,7 @@ namespace KerberosRun
                     //   PrincipalNameType.NT_ENTERPRISE,
                     //    domainName
                     //),
-                    EType = KerberosRun.UseRC4 ? new[] { EncryptionType.RC4_HMAC_NT } : KrbConstants.KerberosConstants.ETypes.ToArray(),//KrbConstants.KerberosConstants.ETypes.ToArray(),//kdcReqEtype, 
+                    EType = KrbConstants.KerberosConstants.ETypes.ToArray(),//KerberosRun.UseRC4 ? new[] { EncryptionType.RC4_HMAC_NT } : KrbConstants.KerberosConstants.ETypes.ToArray()
                     KdcOptions = kdcOptions,
                     Nonce = KrbConstants.KerberosConstants.GetNonce(),
                     RTime = KrbConstants.KerberosConstants.EndOfTime,
@@ -367,6 +367,11 @@ namespace KerberosRun
                     krbApReq = krbCtxToken.KrbApReq;
 
                 }
+            }
+            else
+            {
+                logger.Error("[x] Unable to obtain a ticket ");
+                Environment.Exit(1);
             }
         }
 

@@ -334,7 +334,7 @@ namespace KerberosRun
 
             bKirbi = Kirbi.GetKirbi(tgsRep, tgsDecryptedRepPart, KerberosRun.PTT);
 
-            if (tgsRep.Ticket.SName.Name[0] == "krbtgt")
+            if (tgsRep.Ticket.SName.Name[0] == "krbtgt" && (KerberosRun.Domain != KerberosRun.TargetDomain))
             {
                 logger.Info("[*] Referral TGT received ...");
                 isReferral = true;
