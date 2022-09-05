@@ -14,7 +14,7 @@ namespace KerberosRun
         [Option("DC", Default = null, HelpText = "Domain Controller")]
         public string DC { get; set; }
 
-        [Option("User", Default = null, HelpText = "Username")]
+        [Option("User", Default = "", HelpText = "Username")]
         public string User { get; set; }
 
         [Option("Pass", Default = "password", HelpText = "Password")]

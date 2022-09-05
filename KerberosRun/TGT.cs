@@ -79,7 +79,7 @@ namespace KerberosRun
                     //   PrincipalNameType.NT_ENTERPRISE,
                     //    domainName
                     //),
-                    EType = KrbConstants.KerberosConstants.ETypes.ToArray(),//KerberosRun.UseRC4 ? new[] { EncryptionType.RC4_HMAC_NT } : KrbConstants.KerberosConstants.ETypes.ToArray()
+                    EType = KerberosRun.Asreproast ? new[] { EncryptionType.RC4_HMAC_NT } : KrbConstants.KerberosConstants.ETypes.ToArray(),
                     KdcOptions = kdcOptions,
                     Nonce = KrbConstants.KerberosConstants.GetNonce(),
                     RTime = KrbConstants.KerberosConstants.EndOfTime,
