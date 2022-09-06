@@ -307,7 +307,7 @@ namespace KerberosRun
         }
 
 
-        //Token from Rubeus and adapted
+        //Taken from Rubeus and adapted
         public void RequestDelegateTGT()
         {
             logger.Info("[*] Requesting delegated TGT");
@@ -378,7 +378,7 @@ namespace KerberosRun
 
 
 
-        //Token from Rubeus and adapted
+        //Taken from Rubeus and adapted
         internal void GetEncryptionKeyFromCache(EncryptionType etype)
         {
             logger.Info("[*] Getting encryption key from cache");

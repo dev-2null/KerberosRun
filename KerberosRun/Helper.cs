@@ -10,7 +10,7 @@ namespace KerberosRun
     {
         public static KerberosCredential GetCredFromOption()
         {
-            if (KerberosRun.User == null) { return null; }
+            if (KerberosRun.User == "") { return null; }
             KerberosCredential cred;
 
             if (KerberosRun.UserHash == null)

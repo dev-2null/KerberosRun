@@ -63,7 +63,7 @@ namespace KerberosRun
             DC = options.DC;
             TargetDomain = options.TargetDomain ?? Domain;
             TargetDomain = TargetDomain.ToUpper();
-            User = options.User.ToUpper();
+            User = options.User;//.ToUpper(); could result in invalid checksum
             Pass = options.Pass;
             Ticket = options.Ticket;
             DecryptTGS = options.DecryptTGS;

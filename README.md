@@ -1,9 +1,9 @@
 
 # KerberosRun
 
-KerberosRun is a little tool I use to study Kerberos internals together with my [ADCollector](https://github.com/dev-2null/ADCollector). I'll try to learn and implement stuff from [Rubeus](https://github.com/GhostPack/Rubeus), also something not in Rubeus.  
+KerberosRun is a little tool I use to study AD security together with my [ADCollector](https://github.com/dev-2null/ADCollector). 
 
-KerberosRun uses the [Kerberos.NET](https://github.com/dotnet/Kerberos.NET) library built by [Steve Syfuhs](https://twitter.com/stevesyfuhs). It is heavily adapated from [Harmj0y](https://twitter.com/harmj0y)'s Rubeus project (some code were taken directly from this project). 
+KerberosRun uses the [Kerberos.NET](https://github.com/dotnet/Kerberos.NET) library built by [Steve Syfuhs](https://twitter.com/stevesyfuhs). Some code were taken and adapted from [Harmj0y](https://twitter.com/harmj0y)'s Rubeus project. 
 
 [dev2null](https://twitter.com/dev2nulI) is the primary author of this project. My colleague [Constantin](https://twitter.com/_Herberos) is the collaborator who helped me build up the tool, had a lot of discussions with me and gave me ideas. 
 
@@ -24,7 +24,7 @@ PS C:\Users\dev2null\Desktop> .\KerberosRun.exe
 
 
 
-    asktgt      [--User user] [--Pass pass|--RC4 Hash|--AES128 Hash|--AES256 Hash] [--TGTDeleg CIFS/DC] [--Domain domain] [--DC dc] [--UseRC4] [--NoPAC] [--Verbose] [--Outfile] [--PTT]
+    asktgt      [--User user] [--Pass pass|--RC4 Hash|--AES128 Hash|--AES256 Hash] [--TGTDeleg CIFS/DC] [--Domain domain] [--DC dc] [--NoPAC] [--Verbose] [--Outfile] [--PTT]
 
     asktgs      --SPN Svc/Host|--SPNs Svc1/Host1,Svc2/Host2 [--User user] [--Pass pass|--RC4 Hash|--AES128 Hash|--AES256 Hash|--Ticket Base64Kirbi] [--TGTDeleg CIFS/DC] [--AltService SvcAlt/Host] [--Domain domain] [--DC dc] [--UseRC4] [--TargetDomain targetdomain] [--NoPAC] [--Verbose] [--Outfile] [--PTT]
 
