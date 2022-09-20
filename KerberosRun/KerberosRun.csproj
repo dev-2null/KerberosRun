@@ -38,7 +38,9 @@
     <Reference Include="System.Security" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="KrbCertCredential.cs" />
     <Compile Include="KrbTcp.cs" />
+    <Compile Include="PacCredentialData.cs" />
     <Compile Include="Roast.cs" />
     <Compile Include="KerberosService.cs" />
     <Compile Include="KerberosRun.cs" />
@@ -76,7 +78,7 @@
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
     <PackageReference Include="Kerberos.NET">
-      <Version>4.5.3</Version>
+      <Version>4.5.178</Version>
     </PackageReference>
     <PackageReference Include="NLog">
       <Version>4.7.13</Version>

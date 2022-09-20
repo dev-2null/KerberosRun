@@ -19,11 +19,7 @@ namespace KerberosRun
         public KrbTcp(ILoggerFactory logger) : base(logger) { }
 
 
-        public override async Task<T> SendMessage<T>(
-    string target,
-    ReadOnlyMemory<byte> encoded,
-    CancellationToken cancellation = default
-)
+        public override async Task<T> SendMessage<T>(string target, ReadOnlyMemory<byte> encoded, CancellationToken cancellation = default)
         {
             try
             {

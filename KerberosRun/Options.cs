@@ -20,6 +20,12 @@ namespace KerberosRun
         [Option("Pass", Default = "password", HelpText = "Password")]
         public string Pass { get; set; }
 
+        [Option("Cert", Default = null, HelpText = "Certificate")]
+        public string Cert { get; set; }
+
+        [Option("CertPass", Default = null, HelpText = "Password of the certificate")]
+        public string CertPass { get; set; }
+
         [Option("TargetDomain", Default = null, HelpText = "Target Domain Name for the target service")]
         public string TargetDomain { get; set; }
 
@@ -80,6 +86,9 @@ namespace KerberosRun
     {
         [Option("DecryptTGT", Default = null, HelpText = "Decrypt TGT")]
         public string DecryptTGT { get; set; }
+
+        [Option("GetCred", Default = false, HelpText = "Perform U2U to get NTLM hash")]
+        public bool GetCred { get; set; }
     }
 
     [Verb("asktgs", HelpText = "Ask for a TGS.")]

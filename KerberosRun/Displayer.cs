@@ -3,6 +3,11 @@ using Kerberos.NET.Crypto;
 using Kerberos.NET.Entities;
 using System.Linq;
 using System.Text.RegularExpressions;
+using System.Security.Cryptography.Pkcs;
+using System.Text;
+using Kerberos.NET.Ndr;
+using Kerberos.NET.Entities.Pac;
+using System.IO;
 
 namespace KerberosRun
 {
@@ -18,7 +23,7 @@ namespace KerberosRun
             Console.WriteLine(@" /  '_/ -_) __/ _ \/ -_) __/ _ \(_-</ __/ // / _ \");
             Console.WriteLine(@"/_/\_\\__/_/ /_.__/\__/_/  \___/___/_/  \_,_/_//_/");
             Console.WriteLine();
-            Console.WriteLine(" v2.0.3 ");
+            Console.WriteLine(" v2.0.4 ");
             Console.WriteLine(" by dev2null");
             Console.WriteLine();
         }
@@ -161,8 +166,27 @@ namespace KerberosRun
                         var referData = KrbPaSvrReferralData.Decode(refer.Value);
 
                         Console.WriteLine("       - {0} :", refer.Type);
-                        Console.WriteLine("          - ReferredName :  {0} :", referData.ReferredName);
-                        Console.WriteLine("          - ReferredRealm : {0} :", referData.ReferredRealm);
+                        Console.WriteLine("          - ReferredName :  {0}", referData.ReferredName);
+                        Console.WriteLine("          - ReferredRealm : {0}", referData.ReferredRealm);
+                    }
+                    else if (data.Type == PaDataType.PA_PK_AS_REQ)
+                    {
+                        var pkasReq = paData.FirstOrDefault(p => p.Type == PaDataType.PA_PK_AS_REQ);
+                        var pkasReqData = KrbPaPkAsReq.Decode(pkasReq.Value);
+                        Console.WriteLine("       - {0} :", pkasReq.Type);
+                        Console.WriteLine("          - KdcPkId :  HasVaule({0})", pkasReqData.KdcPkId.HasValue);
+                        Console.WriteLine("          - SignedAuthPack :  {0}", pkasReqData.SignedAuthPack);
+                        Console.WriteLine("          - TrustedCertifiers :  {0}", pkasReqData.TrustedCertifiers);
+                    }
+                    else if (data.Type == PaDataType.PA_PK_AS_REP)
+                    {
+                        var pkasRep = paData.FirstOrDefault(p => p.Type == PaDataType.PA_PK_AS_REP);
+                        var pkasRepData = KrbPaPkAsRep.Decode(pkasRep.Value);
+                        Console.WriteLine("       - {0} :", pkasRep.Type);
+                        Console.WriteLine("          - DHInfo");
+                        Console.WriteLine("             - ServerDHNonce :  {0}", (BitConverter.ToString(pkasRepData.DHInfo.ServerDHNonce.Value.ToArray())).Replace("-", "") );
+                        Console.WriteLine("             - DHSignedData :  {0}", (BitConverter.ToString(pkasRepData.DHInfo.DHSignedData.ToArray())).Replace("-", "") );
+                        Console.WriteLine("          - EncKeyPack :  HasValue({0})", pkasRepData.EncKeyPack.HasValue);
                     }
                     else
                     {
@@ -445,7 +469,7 @@ namespace KerberosRun
         }
 
         //TICKET ENC-PART
-        public static void PrintTicketEnc(KrbEncTicketPart ticketEnc)
+        public static void PrintTicketEnc(KrbEncTicketPart ticketEnc, KrbEncryptionKey key = null)
         {
             Console.WriteLine("       - AuthTime :  {0}", ticketEnc.AuthTime);
             Console.WriteLine("       - StartTime :  {0}", ticketEnc.StartTime);
@@ -472,7 +496,7 @@ namespace KerberosRun
                             if (data2.Type == AuthorizationDataType.AdWin2kPac)
                             {
                                 Console.WriteLine("             - Type :  {0}", data2.Type);
-                                PrintPAC(data2);
+                                PrintPAC(data2, key);
                             }
                             else
                             {
@@ -503,7 +527,7 @@ namespace KerberosRun
         }
 
 
-        public static void PrintPAC(KrbAuthorizationData authData)
+        public static void PrintPAC(KrbAuthorizationData authData, KrbEncryptionKey key = null)
         {
             var pac = new PrivilegedAttributeCertificate(authData);
             //Type
@@ -710,8 +734,15 @@ namespace KerberosRun
                 Console.WriteLine("                - CredentialType :  ");
                 Console.WriteLine("                   - PacType :  {0}", pac.CredentialType.PacType);
                 Console.WriteLine("                   - EncryptionType :  {0}", pac.CredentialType.EncryptionType);
-                Console.WriteLine("                   - SerializedData :  {0}", pac.CredentialType.SerializedData);
                 Console.WriteLine("                   - Version :  {0}", pac.CredentialType.Version);
+                Console.WriteLine("                   - SerializedData :  {0}", (BitConverter.ToString(pac.CredentialType.SerializedData.ToArray())).Replace("-", "") );
+
+                var credSerialData = pac.CredentialType.SerializedData.ToArray();
+
+                var plainCredData = Helper.KerberosDecrypt(KerberosRun.DHSessionKeyEType, 16, Utils.StringToByteArrayCrypto(KerberosRun.DHSessionKey), credSerialData);
+                Console.WriteLine("                     - Decrypted Data : {0}",(BitConverter.ToString(plainCredData)).Replace("-", ""));
+ 
+
             }
 
 
@@ -740,9 +771,6 @@ namespace KerberosRun
                 Console.WriteLine("                   - DnsDomainNameLength :  {0}", pac.UpnDomainInformation.DnsDomainNameLength);
                 Console.WriteLine("                   - DnsDomainNameOffset :  {0}", pac.UpnDomainInformation.DnsDomainNameOffset);
             }
-
-
-
 
             
             //DecodingErrors
