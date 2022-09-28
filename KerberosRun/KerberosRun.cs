@@ -230,13 +230,13 @@ namespace KerberosRun
         
         public int GetTGS(bool displayTicket = true)
         {
-            if (SPN == null && SPNs == null)
+            if (SPN == null && SPNs == null && SPNUser == null)
             {
                 return 0;
             }
             if (SPNs == null)
             {
-                SPNs = new string[] { SPN };
+                SPNs = (SPNUser == null) ? new string[] { SPN } : new string[] { SPNUser };
             }
 
             foreach (string spn in SPNs)
@@ -353,13 +353,13 @@ namespace KerberosRun
 
         public int Kerberoasting()
         {
-            if (SPN == null && SPNs == null)
+            if (SPN == null && SPNs == null && SPNUser == null)
             {
                 return 0;
             }
             if (SPNs == null)
             {
-                SPNs = new string[] { SPN };
+                SPNs = (SPNUser == null) ? new string[] { SPN } : new string[] { SPNUser };
             }
 
 
