@@ -54,7 +54,7 @@ namespace KerberosRun
 
     asktgt      [--User user] [--Pass pass|--RC4 Hash|--AES128 Hash|--AES256 Hash] [--TGTDeleg CIFS/DC] [--Cert CertFile/Base64Cert] [--CertPass CertPass] [--GetCred] [--Domain domain] [--DC dc] [--NoPAC] [--Verbose] [--Outfile] [--PTT]
     
-    asktgs      --SPN Svc/Host|--SPNs Svc1/Host1,Svc2/Host2 [--User user] [--Pass pass|--RC4 Hash|--AES128 Hash|--AES256 Hash|--Ticket Base64Kirbi] [--TGTDeleg CIFS/DC] [--AltService SvcAlt/Host] [--Domain domain] [--DC dc] [--UseRC4] [--TargetDomain targetdomain] [--NoPAC] [--Verbose] [--Outfile] [--PTT]
+    asktgs      --SPN Svc/Host|--SPNs Svc1/Host1,Svc2/Host2|--SPNUser svcuser [--User user] [--Pass pass|--RC4 Hash|--AES128 Hash|--AES256 Hash|--Ticket Base64Kirbi] [--TGTDeleg CIFS/DC] [--AltService SvcAlt/Host] [--Domain domain] [--DC dc] [--UseRC4] [--TargetDomain targetdomain] [--NoPAC] [--Verbose] [--Outfile] [--PTT]
 
     s4u2self    --ImperonsateUser ipuser [--User user] [--Pass pass|--RC4 Hash|--AES128 Hash|--AES256 Hash|--Ticket Base64Kirbi] [--TGTDeleg CIFS/DC] [--Domain domain] [--DC dc] [--UseRC4] [--NoPAC] [--Verbose] [--Outfile] [--PTT]
     
@@ -62,7 +62,7 @@ namespace KerberosRun
 
     u2u         --TargetUser tuser --TargetTGT Base64TGT [--User user] [--Pass pass|--RC4 Hash|--AES128 Hash|--AES256 Hash|--Ticket Base64Kirbi] [--TGTDeleg CIFS/DC] [--PACUser pacuser] [--Domain domain] [--DC dc] [--UseRC4] [--NoPAC] [--Verbose] [--Outfile] [--PTT]
 
-    kerberoast  --SPN Svc/Host|--SPNs Svc1/Host1,Svc2/Host2 [--NoCred] [--User user] [--Pass pass|--RC4 Hash|--AES128 Hash|--AES256 Hash] [--TGTDeleg CIFS/DC] [--UseRC4] [--Domain domain] [--DC dc]
+    kerberoast  --SPN Svc/Host|--SPNs Svc1/Host1,Svc2/Host2|--SPNUser svcuser [--NoCred] [--User user] [--Pass pass|--RC4 Hash|--AES128 Hash|--AES256 Hash] [--TGTDeleg CIFS/DC] [--UseRC4] [--Domain domain] [--DC dc]
 
     asreproast  --Target user [--Format hashcat/john] [--Domain domain] [--DC dc]
 

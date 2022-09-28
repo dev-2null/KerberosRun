@@ -131,10 +131,14 @@ namespace KerberosRun
                 {
                     //if we are not impersonating, we are requesting SPN
                     string[] sn = string.IsNullOrEmpty(KerberosRun.ImpersonateUser) ? rst.ServicePrincipalName.Split('/', '@') : new string[] { KerberosRun.User };
-                    sname = new KrbPrincipalName()
+                    sname = KerberosRun.SPNUser == null ? new KrbPrincipalName()
                     {
                         Type = PrincipalNameType.NT_PRINCIPAL,
                         Name = sn
+                    } : new KrbPrincipalName()
+                    {
+                        Type = PrincipalNameType.NT_UNKNOWN,
+                        Name = new string[] {KerberosRun.SPNUser}
                     };
                 }
             }

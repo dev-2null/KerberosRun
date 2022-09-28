@@ -88,10 +88,14 @@ namespace KerberosRun
                     Nonce = KrbConstants.KerberosConstants.GetNonce(),
                     RTime = KrbConstants.KerberosConstants.EndOfTime,
                     Realm = cred.Domain,
-                    SName = new KrbPrincipalName
+                    SName = (KerberosRun.SPNUser == null) ? new KrbPrincipalName
                     {
                         Type = PrincipalNameType.NT_SRV_INST,
                         Name = KerberosRun.NoCred ? KerberosRun.SPN.Split('/', '@') : new[] { "krbtgt", cred.Domain }
+                    } : new KrbPrincipalName 
+                    {
+                        Type = PrincipalNameType.NT_UNKNOWN,
+                        Name = new[] { KerberosRun.SPNUser}
                     },
                     Till = KrbConstants.KerberosConstants.EndOfTime,
                     AdditionalTickets = null,

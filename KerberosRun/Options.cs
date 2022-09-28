@@ -97,6 +97,9 @@ namespace KerberosRun
         [Option("SPN", Default = null, HelpText = "SPN")]
         public string SPN { get; set; }
 
+        [Option("SPNUser", Default = null, HelpText = "Target user that has SPN")]
+        public string SPNUser { get; set; }
+
         [Option("SPNs", Default = null, HelpText = "SPN")]
         public string SPNs { get; set; }
     }
@@ -137,6 +140,9 @@ namespace KerberosRun
     {
         [Option("SPN", Default = null, HelpText = "SPN")]
         public string SPN { get; set; }
+
+        [Option("SPNUser", Default = null, HelpText = "Target user that has SPN")]
+        public string SPNUser { get; set; }
 
         [Option("SPNs", Default = null, HelpText = "SPN")]
         public string SPNs { get; set; }

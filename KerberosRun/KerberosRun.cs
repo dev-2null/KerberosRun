@@ -38,6 +38,7 @@ namespace KerberosRun
         public static bool Debug;
 
         public static string SPN;
+        public static string SPNUser;
         public static string[] SPNs;
         public static string DecryptTGT;
         public static string ImpersonateUser;
@@ -108,11 +109,13 @@ namespace KerberosRun
             {
                 SPN = asopts.SPN;
                 SPNs = asopts.SPNs == null ? null : asopts.SPNs.Split(',').Select(s => s.Trim()).ToArray();
+                SPNUser = asopts.SPNUser;
             }
 
             else if (options is KerberoastOptions ktopts)
             {
                 SPN = ktopts.SPN;
+                SPNUser = ktopts.SPNUser;
                 SPNs = ktopts.SPNs == null ? null : ktopts.SPNs.Split(',').Select(s => s.Trim()).ToArray();
                 Format = ktopts.Format;
                 NoCred = ktopts.NoCred;
