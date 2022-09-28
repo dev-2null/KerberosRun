@@ -48,7 +48,7 @@ namespace KerberosRun
         public static string Host;
         public static string HostHash;
         public static string Service;
-        public static bool NoCred;
+        public static bool ASReq;
 
         public static string Cert;
         internal static string CertPass;
@@ -118,7 +118,7 @@ namespace KerberosRun
                 SPNUser = ktopts.SPNUser;
                 SPNs = ktopts.SPNs == null ? null : ktopts.SPNs.Split(',').Select(s => s.Trim()).ToArray();
                 Format = ktopts.Format;
-                NoCred = ktopts.NoCred;
+                ASReq = ktopts.ASReq;
             }
             else if (options is AsreproastOptions astopts)
             {
@@ -366,7 +366,7 @@ namespace KerberosRun
             foreach (string spn in SPNs)
             {
                 SPN = spn;
-                if (NoCred)
+                if (ASReq)
                 {
                     Roast roast = new Roast();
                     TGT tgt = new TGT();
