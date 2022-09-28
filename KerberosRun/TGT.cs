@@ -238,7 +238,7 @@ namespace KerberosRun
                 notPreauth = false;
             }
 
-            if (KerberosRun.ASReq){  return; }
+            if (KerberosRun.ASReq && KerberosRun.Pass == "null"){  return; }
 
             ticket = asRep.Ticket;
 

@@ -17,7 +17,7 @@ namespace KerberosRun
         [Option("User", Default = "", HelpText = "Username")]
         public string User { get; set; }
 
-        [Option("Pass", Default = "password", HelpText = "Password")]
+        [Option("Pass", Default = "null", HelpText = "Password")]
         public string Pass { get; set; }
 
         [Option("Cert", Default = null, HelpText = "Certificate")]

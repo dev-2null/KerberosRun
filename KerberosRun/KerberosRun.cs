@@ -370,7 +370,8 @@ namespace KerberosRun
                 {
                     Roast roast = new Roast();
                     TGT tgt = new TGT();
-                    tgt.Ask().Wait();
+                    bool displayTicket = Pass != "null";
+                    GetKerberosService(tgt, displayTicket);
                     roast.Kerberoast(tgt);
                 }
                 else
