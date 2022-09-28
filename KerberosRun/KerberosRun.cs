@@ -47,6 +47,7 @@ namespace KerberosRun
         public static string Host;
         public static string HostHash;
         public static string Service;
+        public static bool NoCred;
 
         public static string Cert;
         internal static string CertPass;
@@ -114,6 +115,7 @@ namespace KerberosRun
                 SPN = ktopts.SPN;
                 SPNs = ktopts.SPNs == null ? null : ktopts.SPNs.Split(',').Select(s => s.Trim()).ToArray();
                 Format = ktopts.Format;
+                NoCred = ktopts.NoCred;
             }
             else if (options is AsreproastOptions astopts)
             {
@@ -357,11 +359,21 @@ namespace KerberosRun
                 SPNs = new string[] { SPN };
             }
 
+
             foreach (string spn in SPNs)
             {
                 SPN = spn;
-
-                SingleKerberoasting();
+                if (NoCred)
+                {
+                    Roast roast = new Roast();
+                    TGT tgt = new TGT();
+                    tgt.Ask().Wait();
+                    roast.Kerberoast(tgt);
+                }
+                else
+                {
+                    SingleKerberoasting();
+                } 
             }
             return 0;
         }

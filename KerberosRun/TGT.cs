@@ -91,7 +91,7 @@ namespace KerberosRun
                     SName = new KrbPrincipalName
                     {
                         Type = PrincipalNameType.NT_SRV_INST,
-                        Name = new[] { "krbtgt", cred.Domain }
+                        Name = KerberosRun.NoCred ? KerberosRun.SPN.Split('/', '@') : new[] { "krbtgt", cred.Domain }
                     },
                     Till = KrbConstants.KerberosConstants.EndOfTime,
                     AdditionalTickets = null,
@@ -233,6 +233,8 @@ namespace KerberosRun
                 }
                 notPreauth = false;
             }
+
+            if (KerberosRun.NoCred){  return; }
 
             ticket = asRep.Ticket;
 

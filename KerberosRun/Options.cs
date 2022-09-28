@@ -143,6 +143,9 @@ namespace KerberosRun
 
         [Option("Format", Default = "hashcat", HelpText = "Hash Format")]
         public string Format { get; set; }
+
+        [Option("NoCred", Default = false, HelpText = "Perform Kerberoasting without Credential")]
+        public bool NoCred { get; set; }
     }
 
     [Verb("asreproast", HelpText = "Perform Asreproasting.")]
