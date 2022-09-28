@@ -27,6 +27,7 @@ namespace KerberosRun
         public static bool UseRC4;
         public static string DelegateSPN;
 
+        public static bool BronzeBit;
         public static bool GetCred;
         public static string RC4;
         public static string AES128;
@@ -131,10 +132,12 @@ namespace KerberosRun
             {
                 ImpersonateUser = suopts.ImpersonateUser;
                 SPN = suopts.SPN;
+                BronzeBit = suopts.BronzeBit;
             }
             else if (options is S4U2SelfOptions sfopts)
             {
                 ImpersonateUser = sfopts.ImpersonateUser;
+                BronzeBit = sfopts.BronzeBit;
             }
             else if (options is U2UOptions uuopts)
             {

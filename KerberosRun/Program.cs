@@ -56,9 +56,9 @@ namespace KerberosRun
     
     asktgs      --SPN Svc/Host|--SPNs Svc1/Host1,Svc2/Host2|--SPNUser svcuser [--User user] [--Pass pass|--RC4 Hash|--AES128 Hash|--AES256 Hash|--Ticket Base64Kirbi] [--TGTDeleg CIFS/DC] [--AltService SvcAlt/Host] [--Domain domain] [--DC dc] [--UseRC4] [--TargetDomain targetdomain] [--NoPAC] [--Verbose] [--Outfile] [--PTT]
 
-    s4u2self    --ImperonsateUser ipuser [--User user] [--Pass pass|--RC4 Hash|--AES128 Hash|--AES256 Hash|--Ticket Base64Kirbi] [--TGTDeleg CIFS/DC] [--Domain domain] [--DC dc] [--UseRC4] [--NoPAC] [--Verbose] [--Outfile] [--PTT]
+    s4u2self    --ImperonsateUser ipuser [--User user] [--Pass pass|--RC4 Hash|--AES128 Hash|--AES256 Hash|--Ticket Base64Kirbi] [--BronzeBit] [--TGTDeleg CIFS/DC] [--Domain domain] [--DC dc] [--UseRC4] [--NoPAC] [--Verbose] [--Outfile] [--PTT]
     
-    s4u         --ImperonsateUser ipuser --SPN Svc/Host [--User user] [--Pass pass|--RC4 Hash|--AES128 Hash|--AES256 Hash|--Ticket Base64Kirbi] [--TGTDeleg CIFS/DC] [--AltService SvcAlt/Host] [--Domain domain] [--DC dc] [--UseRC4] [--NoPAC] [--Verbose] [--Outfile] [--PTT]
+    s4u         --ImperonsateUser ipuser --SPN Svc/Host [--User user] [--Pass pass|--RC4 Hash|--AES128 Hash|--AES256 Hash|--Ticket Base64Kirbi] [--BronzeBit] [--TGTDeleg CIFS/DC] [--AltService SvcAlt/Host] [--Domain domain] [--DC dc] [--UseRC4] [--NoPAC] [--Verbose] [--Outfile] [--PTT]
 
     u2u         --TargetUser tuser --TargetTGT Base64TGT [--User user] [--Pass pass|--RC4 Hash|--AES128 Hash|--AES256 Hash|--Ticket Base64Kirbi] [--TGTDeleg CIFS/DC] [--PACUser pacuser] [--Domain domain] [--DC dc] [--UseRC4] [--NoPAC] [--Verbose] [--Outfile] [--PTT]
 

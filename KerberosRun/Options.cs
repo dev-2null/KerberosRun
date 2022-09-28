@@ -112,6 +112,9 @@ namespace KerberosRun
 
         [Option("Impersonateuser", Required = true, HelpText = "Impersonate Username")]
         public string ImpersonateUser { get; set; }
+
+        [Option("BronzeBit", Default = false, HelpText = "BronzeBit")]
+        public bool BronzeBit { get; set; }
     }
 
     [Verb("s4u2self", HelpText = "Perform S4U2Self.")]
@@ -119,6 +122,9 @@ namespace KerberosRun
     {
         [Option("Impersonateuser", Required = true, HelpText = "Impersonate Username")]
         public string ImpersonateUser { get; set; }
+
+        [Option("BronzeBit", Default = false, HelpText = "BronzeBit")]
+        public bool BronzeBit { get; set; }
     }
 
     [Verb("u2u", HelpText = "Perform S4U2Self.")]
