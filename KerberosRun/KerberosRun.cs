@@ -17,6 +17,7 @@ namespace KerberosRun
         internal static string Pass;
         internal static string UserHash = null;
         internal static EncryptionType UserEType;
+        public static string TargetService;
         public static string TargetDomain;
         public static string Ticket;
         public static EncryptionType DecryptEtype;
@@ -105,6 +106,10 @@ namespace KerberosRun
             {
                 DecryptTGT = atopts.DecryptTGT;
                 GetCred = atopts.GetCred;
+                U2UTarget = atopts.TargetUser;
+                U2UTGT = atopts.TargetTGT;
+                TargetService = atopts.TargetService;
+                TargetDomain = atopts.TargetDomain ?? Domain;
             }
             else if (options is AskTGSOptions asopts)
             {
@@ -222,10 +227,20 @@ namespace KerberosRun
 
             if (GetCred)
             {
-                U2UTGT = KrbTGT.ToKirbi();
-                U2UTarget = User;
-                U2UPACUser = User;
-                GetU2U(out _, displayTicket);
+                if (U2UTGT == null)
+                {
+                    var tgs = new TGS(tgt);
+
+                    GetKerberosService(tgs, displayTicket);
+                }
+                else
+                {
+                    U2UTGT = U2UTGT ?? KrbTGT.ToKirbi();
+                    U2UTarget = U2UTarget ?? User;
+                    U2UPACUser = User;
+                    GetU2U(out _, displayTicket);
+                }
+
             }
             return 0;
         }

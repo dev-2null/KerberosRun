@@ -129,17 +129,26 @@ namespace KerberosRun
                 //TGS / S4U2Self
                 else
                 {
-                    //if we are not impersonating, we are requesting SPN
-                    string[] sn = string.IsNullOrEmpty(KerberosRun.ImpersonateUser) ? rst.ServicePrincipalName.Split('/', '@') : new string[] { KerberosRun.User };
-                    sname = KerberosRun.SPNUser == null ? new KrbPrincipalName()
+                    if (!string.IsNullOrEmpty(KerberosRun.TargetService) && KerberosRun.GetCred)
                     {
-                        Type = PrincipalNameType.NT_PRINCIPAL,
-                        Name = sn
-                    } : new KrbPrincipalName()
+                        sname = new KrbPrincipalName()
+                        {
+                            Type = PrincipalNameType.NT_UNKNOWN,
+                            Name = new string[] { KerberosRun.TargetService }
+                        };
+                    }
+                    else
                     {
-                        Type = PrincipalNameType.NT_UNKNOWN,
-                        Name = new string[] {KerberosRun.SPNUser}
-                    };
+                        sname = KerberosRun.SPNUser == null ? new KrbPrincipalName()
+                        {
+                            Type = PrincipalNameType.NT_PRINCIPAL,
+                            Name = string.IsNullOrEmpty(KerberosRun.ImpersonateUser) ? rst.ServicePrincipalName.Split('/', '@') : new string[] { KerberosRun.User }
+                        } : new KrbPrincipalName()
+                        {
+                            Type = PrincipalNameType.NT_UNKNOWN,
+                            Name = new string[] { KerberosRun.SPNUser }
+                        };
+                    }
                 }
             }
             //S4U2Proxy
@@ -380,10 +389,26 @@ namespace KerberosRun
 
         public void GetCredFromPAC()
         {
-            KrbEncTicketPart ticketDecrypted = tgsRep.Ticket.EncryptedPart.Decrypt(
-                KerberosRun.U2USessionKey.AsKey(),
-                KeyUsage.Ticket,
-                (ReadOnlyMemory<byte> t) => KrbEncTicketPart.DecodeApplication(t));
+            KrbEncTicketPart ticketDecrypted;
+
+            if (string.IsNullOrEmpty(KerberosRun.TargetService))
+            {
+                ticketDecrypted = tgsRep.Ticket.EncryptedPart.Decrypt(
+                    KerberosRun.U2USessionKey.AsKey(),
+                    KeyUsage.Ticket,
+                    (ReadOnlyMemory<byte> t) => KrbEncTicketPart.DecodeApplication(t));
+            }
+            else
+            {
+                var serviceCred = Helper.GetCredFromOptionForTarget();
+                ticketDecrypted = tgsRep.Ticket.EncryptedPart.Decrypt(
+                    serviceCred.CreateKey(),
+                    KeyUsage.Ticket,
+                    (ReadOnlyMemory<byte> t) => KrbEncTicketPart.DecodeApplication(t));
+            }
+            
+
+
 
             var pac = Helper.GetPAC(ticketDecrypted);
 

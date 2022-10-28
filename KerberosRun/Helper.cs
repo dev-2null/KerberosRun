@@ -54,6 +54,23 @@ namespace KerberosRun
         }
 
 
+        public static KerberosCredential GetCredFromOptionForTarget()
+        {
+            if (KerberosRun.TargetService == "") { return null; }
+            KerberosCredential cred;
+
+            if (KerberosRun.UserHash != null)
+            {
+                cred = new KerberosHashCreds(KerberosRun.TargetService, KerberosRun.UserHash, KerberosRun.UserEType, KerberosRun.TargetDomain);
+            }
+            else
+            {
+                cred = new KerberosPasswordCredential(KerberosRun.TargetService, KerberosRun.Pass, KerberosRun.TargetDomain);
+            }
+
+            return cred;
+        }
+
 
         // From Rubeus
         // Adapted from Vincent LE TOUX' "MakeMeEnterpriseAdmin"

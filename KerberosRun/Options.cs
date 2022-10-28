@@ -89,6 +89,18 @@ namespace KerberosRun
 
         [Option("GetCred", Default = false, HelpText = "Perform U2U to get NTLM hash")]
         public bool GetCred { get; set; }
+
+        [Option("TargetUser", Required = false, HelpText = "Target User for U2U")]
+        public string TargetUser { get; set; }
+
+        [Option("TargetService", Required = false, HelpText = "Target Service in order to retrieve PAC with NTLM credential")]
+        public string TargetService { get; set; }
+
+        [Option("TargetTGT", Required = false, HelpText = "TGT for U2U")]
+        public string TargetTGT { get; set; }
+
+        [Option("SPNUser", Default = null, HelpText = "Target user that has SPN")]
+        public string SPNUser { get; set; }
     }
 
     [Verb("asktgs", HelpText = "Ask for a TGS.")]
