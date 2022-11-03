@@ -38,6 +38,7 @@
     <Reference Include="System.Security" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AskTGT.cs" />
     <Compile Include="KrbCertCredential.cs" />
     <Compile Include="KrbTcp.cs" />
     <Compile Include="PacCredentialData.cs" />

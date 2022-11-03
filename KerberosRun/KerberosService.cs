@@ -24,7 +24,7 @@ namespace KerberosRun
             transport = new KrbTcp(null);
             cred = Helper.GetCredFromOption();
         }
-        public abstract Task Ask();
+        public abstract Task Send();
         public abstract void Create();
         public string ToKirbi()
         {

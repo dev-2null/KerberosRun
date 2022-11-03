@@ -295,7 +295,7 @@ namespace KerberosRun
         }
 
 
-        public override async Task Ask()
+        public override async Task Send()
         {
             domain = isReferral ? KerberosRun.TargetDomain : KerberosRun.Domain;
             

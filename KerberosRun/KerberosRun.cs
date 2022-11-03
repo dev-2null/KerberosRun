@@ -1,4 +1,5 @@
-﻿using Kerberos.NET.Crypto;
+﻿using Kerberos.NET.Client;
+using Kerberos.NET.Crypto;
 using Kerberos.NET.Entities;
 using System;
 using System.Collections.Generic;
@@ -72,7 +73,7 @@ namespace KerberosRun
         {
             Domain = options.Domain ?? Environment.GetEnvironmentVariable("USERDNSDOMAIN");
             Domain = Domain.ToUpper();
-            DC = options.DC;
+            DC = options.DC ?? Domain;
             TargetDomain = options.TargetDomain ?? Domain;
             TargetDomain = TargetDomain.ToUpper();
             User = options.User;//.ToUpper(); could result in invalid checksum
@@ -194,7 +195,7 @@ namespace KerberosRun
 
         public int GetKerberosService(KerberosService krbsvc, bool displayTicket = true)
         {
-            krbsvc.Ask().Wait();
+            krbsvc.Send().Wait();
             if (krbsvc.requestFailed) { return 0; }
             krbsvc.Display();
             if (displayTicket) { krbsvc.DisplayTicket(); }
@@ -203,6 +204,30 @@ namespace KerberosRun
         }
 
 
+        public static TGT RequestTGT()
+        {
+            var tgt = new TGT();
+            
+            KrbAsReq asReq = (Cert == null) ? tgt.CreateAsReq() : tgt.CreateAsReqWithCert();
+
+            KrbAsRep asRep = tgt.SendAsync(asReq).Result;
+
+            if (asRep == null)
+            {
+                tgt.authOptions |= AuthenticationOptions.PreAuthenticate;
+
+                asReq = (Cert == null) ? tgt.CreateAsReq() : tgt.CreateAsReqWithCert();
+
+                asRep = tgt.SendAsync(asReq).Result;
+            }
+
+            tgt.DecryptAsRep();
+
+            tgt.Display();
+            tgt.DisplayTicket();
+
+            return tgt;
+        }
 
         public int GetTGT(out TGT tgt, bool displayTicket = true)
         {
@@ -219,8 +244,7 @@ namespace KerberosRun
 
             if (User == null) { tgt = null; return 0; }
 
-            tgt = new TGT();
-            GetKerberosService(tgt, displayTicket);
+            tgt = RequestTGT();
 
             //save this TGT for the next TGS request
             KrbTGT = tgt;
