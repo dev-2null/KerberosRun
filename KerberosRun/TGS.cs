@@ -112,7 +112,7 @@ namespace KerberosRun
                 Type = PrincipalNameType.NT_PRINCIPAL,
                 Name = new string[] { KerberosRun.User }
             };
-            Console.WriteLine(cname.Name[0]);
+
             KrbPrincipalName sname;
             //TGS / S4U2Self / U2U
             if (KerberosRun.S4UTicket == null)
