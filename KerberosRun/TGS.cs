@@ -177,12 +177,16 @@ namespace KerberosRun
             {
                 body.AdditionalTickets = additionalTickets.ToArray();
             }
+            
+            var checksum = CryptoService.CreateChecksum(ChecksumType.KERB_CHECKSUM_HMAC_MD5, signatureData: body.Encode());
+            checksum.Usage = KeyUsage.PaTgsReqChecksum;
+            checksum.Sign(sessionKey.AsKey());
+            var bodyChecksum = new KrbChecksum
+            {
+                Checksum = checksum.Signature,
+                Type = ChecksumType.KERB_CHECKSUM_HMAC_MD5
+            };
 
-            var bodyChecksum = KrbChecksum.Create(
-                body.Encode(),
-                sessionKey.AsKey(),
-                KeyUsage.PaTgsReqChecksum
-            );
 
             //ApReq
             //Authenticator
@@ -197,18 +201,24 @@ namespace KerberosRun
                 CuSec = now.Millisecond //new Random().Next(0, 999999)
             };
 
-            subSessionKey = KrbEncryptionKey.Generate(sessionKey.EType);
-            subSessionKey.Usage = KeyUsage.EncTgsRepPartSubSessionKey;
-            authenticator.Subkey = subSessionKey;
+            //subSessionKey = KrbEncryptionKey.Generate(sessionKey.EType);
+            //subSessionKey.Usage = KeyUsage.EncTgsRepPartSubSessionKey;
+            //authenticator.Subkey = subSessionKey;
 
             KrbEncryptedData encryptedAuthenticator = null;
+
             try
             {
-                encryptedAuthenticator = KrbEncryptedData.Encrypt(
-                    authenticator.EncodeApplication(),
-                    sessionKey.AsKey(),
-                    KeyUsage.PaTgsReqAuthenticator);
+                //var crypto = CryptoService.CreateTransform(sessionKey.EType);
+                //var encryptedData = crypto.Encrypt(authenticator.EncodeApplication(), sessionKey.AsKey(), KeyUsage.PaTgsReqAuthenticator);
 
+                var encryptedData = Helper.KerberosEncrypt(sessionKey.EType, (int)KeyUsage.PaTgsReqAuthenticator, sessionKey.KeyValue.ToArray(), authenticator.EncodeApplication().ToArray());
+                encryptedAuthenticator = new KrbEncryptedData
+                {
+                    Cipher = encryptedData,
+                    EType = sessionKey.EType,
+                    KeyVersionNumber = sessionKey.AsKey().Version
+                };
             }
             catch (Exception e)
             {

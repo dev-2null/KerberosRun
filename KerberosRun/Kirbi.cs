@@ -95,6 +95,58 @@ namespace KerberosRun
         }
 
 
+        public static byte[] GetRC4MD4Kirbi(KrbAsRep asRep, byte[] key, bool ptt = false)
+        {
+
+            var now = DateTime.UtcNow;
+
+            var info = new KrbCredInfo()
+            {
+                Key = new KrbEncryptionKey { EType = EncryptionType.RC4_MD4, KeyValue = key, Usage = KeyUsage.Ticket},
+                Realm = asRep.CRealm,
+                PName = asRep.CName,
+                Flags = 0,
+                StartTime = now,
+                EndTime = now,
+                RenewTill = now,
+                SRealm = asRep.Ticket.Realm,
+                SName = asRep.Ticket.SName
+            };
+
+            KrbCredInfo[] infos = { info };
+
+            var encCredPart = new KrbEncKrbCredPart()
+            {
+                TicketInfo = infos
+
+            };
+
+
+            var myCred = new KrbCred();
+            myCred.ProtocolVersionNumber = 5;
+            myCred.MessageType = MessageType.KRB_CRED;
+            myCred.Tickets = new KrbTicket[] { asRep.Ticket };
+
+
+            var encryptedData = new KrbEncryptedData()
+            {
+                Cipher = encCredPart.EncodeApplication(),
+            };
+
+            myCred.EncryptedPart = encryptedData;
+
+            byte[] kirbiBytes = myCred.EncodeApplication().ToArray();
+
+            //string kirbiString = Convert.ToBase64String(kirbiBytes);
+
+            if (ptt) { LSA.ImportTicket(kirbiBytes, new LUID()); }
+
+
+            return kirbiBytes;
+        }
+
+
+
         //FROM TGS_REP
         public static byte[] GetKirbi(KrbTgsRep tgsRep, KrbEncTgsRepPart tgsDecryptedRepPart, bool ptt = false)
         {

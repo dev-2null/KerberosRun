@@ -139,6 +139,31 @@ namespace KerberosRun
             }
             return new string(c);
         }
+
+
+        public static byte[] AddByteToArray(byte[] bArray, byte newByte)
+        {
+            byte[] newArray = new byte[bArray.Length + 1];
+            bArray.CopyTo(newArray, 1);
+            newArray[0] = newByte;
+            return newArray;
+        }
+
+        public static byte[] EncodeLength(int value, int length)
+        {
+            if (value < 0)
+                throw new ArgumentOutOfRangeException("Invalid length value. Can't be negative.", nameof(value));
+            if (length == 0)
+                return new byte[] { (byte)value };
+            if (length == 1)
+                return new byte[] { 0x81, (byte)value };
+            if (length == 2)
+                return new byte[] { 0x82, (byte)(value >> 8), (byte)(value & 0xFF) };
+            if (length == 3)
+                return new byte[] { 0x83, (byte)(value >> 16), (byte)(value >> 8), (byte)(value & 0xFF) };
+            return new byte[] { 0x84, (byte)(value >> 24), (byte)(value >> 16), (byte)(value >> 8), (byte)(value & 0xFF) };
+        }
+
     }
 
 

@@ -112,6 +112,42 @@ namespace KerberosRun
         }
 
 
+        public static byte[] KerberosEncrypt(EncryptionType eType, int keyUsage, byte[] key, byte[] data)
+        {
+            Interop.KERB_ECRYPT pCSystem;
+            IntPtr pCSystemPtr;
+
+            // locate the crypto system
+            int status = Interop.CDLocateCSystem(eType, out pCSystemPtr);
+            pCSystem = (Interop.KERB_ECRYPT)Marshal.PtrToStructure(pCSystemPtr, typeof(Interop.KERB_ECRYPT));
+            if (status != 0)
+                throw new Win32Exception(status, "Error on CDLocateCSystem");
+
+            // initialize everything
+            IntPtr pContext;
+            Interop.KERB_ECRYPT_Initialize pCSystemInitialize = (Interop.KERB_ECRYPT_Initialize)Marshal.GetDelegateForFunctionPointer(pCSystem.Initialize, typeof(Interop.KERB_ECRYPT_Initialize));
+            Interop.KERB_ECRYPT_Encrypt pCSystemEncrypt = (Interop.KERB_ECRYPT_Encrypt)Marshal.GetDelegateForFunctionPointer(pCSystem.Encrypt, typeof(Interop.KERB_ECRYPT_Encrypt));
+            Interop.KERB_ECRYPT_Finish pCSystemFinish = (Interop.KERB_ECRYPT_Finish)Marshal.GetDelegateForFunctionPointer(pCSystem.Finish, typeof(Interop.KERB_ECRYPT_Finish));
+            status = pCSystemInitialize(key, key.Length, keyUsage, out pContext);
+            if (status != 0)
+                throw new Win32Exception(status);
+
+            int outputSize = data.Length;
+            if (data.Length % pCSystem.BlockSize != 0)
+                outputSize += pCSystem.BlockSize - (data.Length % pCSystem.BlockSize);
+
+            string algName = Marshal.PtrToStringAuto(pCSystem.AlgName);
+
+            outputSize += pCSystem.Size;
+            byte[] output = new byte[outputSize];
+
+            // actually perform the decryption
+            status = pCSystemEncrypt(pContext, data, data.Length, output, ref outputSize);
+            pCSystemFinish(ref pContext);
+
+            return output;
+        }
+
         public static PrivilegedAttributeCertificate GetPAC(KrbEncTicketPart ticketEnc)
         {
             if (ticketEnc.AuthorizationData != null)

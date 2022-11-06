@@ -12,7 +12,7 @@ namespace KerberosRun
         protected Logger logger;
         protected readonly KrbTcp transport;
         internal KerberosCredential cred;
-        protected byte[] bKirbi;
+        internal byte[] bKirbi;
         internal readonly DateTime now;
         internal KrbTicket ticket;
         public bool requestFailed = false;

