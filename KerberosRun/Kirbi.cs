@@ -102,7 +102,7 @@ namespace KerberosRun
 
             var info = new KrbCredInfo()
             {
-                Key = new KrbEncryptionKey { EType = EncryptionType.RC4_MD4, KeyValue = key, Usage = KeyUsage.Ticket},
+                Key = new KrbEncryptionKey { EType = EncryptionType.RC4_MD4, KeyValue = key },//, Usage = KeyUsage.Ticket},
                 Realm = asRep.CRealm,
                 PName = asRep.CName,
                 Flags = 0,
@@ -113,12 +113,9 @@ namespace KerberosRun
                 SName = asRep.Ticket.SName
             };
 
-            KrbCredInfo[] infos = { info };
-
             var encCredPart = new KrbEncKrbCredPart()
             {
-                TicketInfo = infos
-
+                TicketInfo = new KrbCredInfo[] { info }
             };
 
 
@@ -126,7 +123,6 @@ namespace KerberosRun
             myCred.ProtocolVersionNumber = 5;
             myCred.MessageType = MessageType.KRB_CRED;
             myCred.Tickets = new KrbTicket[] { asRep.Ticket };
-
 
             var encryptedData = new KrbEncryptedData()
             {

@@ -38,7 +38,6 @@
     <Reference Include="System.Security" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="AskTGT.cs" />
     <Compile Include="KrbCertCredential.cs" />
     <Compile Include="KrbTcp.cs" />
     <Compile Include="PacCredentialData.cs" />
@@ -52,6 +51,7 @@
     <Compile Include="Helper.cs" />
     <Compile Include="Options.cs" />
     <Compile Include="Pac.cs" />
+    <Compile Include="Utils\AsnElt.cs" />
     <Compile Include="Utils\Interop.cs" />
     <Compile Include="Utils\KerberosHashCreds.cs" />
     <Compile Include="Utils\LSA.cs" />

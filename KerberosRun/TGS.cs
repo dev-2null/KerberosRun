@@ -112,7 +112,7 @@ namespace KerberosRun
                 Type = PrincipalNameType.NT_PRINCIPAL,
                 Name = new string[] { KerberosRun.User }
             };
-
+            Console.WriteLine(cname.Name[0]);
             KrbPrincipalName sname;
             //TGS / S4U2Self / U2U
             if (KerberosRun.S4UTicket == null)
@@ -170,7 +170,7 @@ namespace KerberosRun
                 Realm = rst.Realm,
                 SName = sname,
                 Till = KrbConstants.KerberosConstants.EndOfTime,
-                CName = rst.CNameHint
+                CName = cname//rst.CNameHint
             };
 
             if (additionalTickets.Count > 0)
@@ -217,7 +217,7 @@ namespace KerberosRun
                 {
                     Cipher = encryptedData,
                     EType = sessionKey.EType,
-                    KeyVersionNumber = sessionKey.AsKey().Version
+                    //KeyVersionNumber = sessionKey.AsKey().Version
                 };
             }
             catch (Exception e)
@@ -230,7 +230,8 @@ namespace KerberosRun
             {
                 Ticket = tgt,
                 ApOptions = apOptions,
-                Authenticator = encryptedAuthenticator
+                Authenticator = encryptedAuthenticator,
+                MessageType = MessageType.KRB_AP_REQ,
             };
 
 
@@ -340,11 +341,18 @@ namespace KerberosRun
 
             ticket = tgsRep.Ticket;
 
+
             //TGS-REP Enc-Part
-            tgsDecryptedRepPart = tgsRep.EncPart.Decrypt<KrbEncTgsRepPart>(
-                subSessionKey.AsKey(),
-                KeyUsage.EncTgsRepPartSubSessionKey,
-                (ReadOnlyMemory<byte> t) => KrbEncTgsRepPart.DecodeApplication(t));
+            var tgsDecryptedRepPartBytes = Helper.KerberosDecrypt(sessionKey.EType, (int)KeyUsage.EncTgsRepPartSessionKey, sessionKey.KeyValue.ToArray(), tgsRep.EncPart.Cipher.ToArray());
+
+            tgsDecryptedRepPart = KrbEncTgsRepPart.DecodeApplication(tgsDecryptedRepPartBytes);
+
+            //tgsDecryptedRepPart = tgsRep.EncPart.Decrypt<KrbEncTgsRepPart>(
+            //    sessionKey.AsKey(),
+            //    //subSessionKey.AsKey(),
+            //    KeyUsage.EncTgsRepPartSessionKey,
+            //    //KeyUsage.EncTgsRepPartSubSessionKey,
+            //    (ReadOnlyMemory<byte> t) => KrbEncTgsRepPart.DecodeApplication(t));
 
             //alternative service name
             if (KerberosRun.AltService != null)

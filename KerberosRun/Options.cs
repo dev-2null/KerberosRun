@@ -103,6 +103,12 @@ namespace KerberosRun
         public string SPNUser { get; set; }
     }
 
+    [Verb("askmd4", HelpText = "Ask for a TGT with no preauth user with RC4-MD4.")]
+    class AskMD4Options : Options
+    {
+
+    }
+
     [Verb("asktgs", HelpText = "Ask for a TGS.")]
     class AskTGSOptions : Options
     {
