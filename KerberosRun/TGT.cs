@@ -525,7 +525,7 @@ namespace KerberosRun
             }
             catch (KerberosProtocolException pex)
             {
-                //logger.Info("[x] {0}", pex.Message);
+                logger.Debug("[x] {0}", pex.Message);
 
                 if (pex?.Error?.ErrorCode == KerberosErrorCode.KDC_ERR_PREAUTH_REQUIRED)
                 {
@@ -557,7 +557,9 @@ namespace KerberosRun
                 else
                 {
                     //logger.Error("[x] Authentication Stopped ...\n");
+                    logger.Error($"[x] {pex.Message}");
                     requestFailed = true;
+                    Environment.Exit(1);
                 }
                 return pex;
             }

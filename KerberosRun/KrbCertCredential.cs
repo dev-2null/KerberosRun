@@ -7,12 +7,15 @@ using System.Security.Cryptography.X509Certificates;
 using Kerberos.NET.Credentials;
 using Kerberos.NET.Crypto;
 using Kerberos.NET.Entities;
+using NLog;
 
 namespace KerberosRun
 {
     //Adapted from Kerberos.Net Source
     public class KrbCertCredential : KerberosCredential, IDisposable
     {
+        protected Logger logger;
+
         private DateTime now = DateTime.Now;
 
         private static readonly Oid IdPkInitAuthData = new Oid("1.3.6.1.5.2.3.1");
@@ -28,6 +31,7 @@ namespace KerberosRun
             string domain = null
         )
         {
+            logger = LogManager.GetCurrentClassLogger();
             if (cert == null)
             {
                 throw new ArgumentException("Certificate cannot be null", nameof(cert));
@@ -46,7 +50,7 @@ namespace KerberosRun
             TrySplitUserNameDomain(username, out username, ref domain);
 
             this.Certificate = cert;
-
+            logger.Debug($"Cert: \n{cert}");
             this.UserName = username;
 
             if (!string.IsNullOrWhiteSpace(domain))
