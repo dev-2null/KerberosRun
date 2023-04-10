@@ -30,7 +30,7 @@ namespace KerberosRun
                 }
                 else
                 {
-                    KerberosRun.Certificate = new X509Certificate2(KerberosRun.Cert, KerberosRun.Pass);
+                    KerberosRun.Certificate = new X509Certificate2(KerberosRun.Cert, KerberosRun.CertPass);
                 }
                 cred = new KrbCertCredential(KerberosRun.Certificate, KerberosRun.User, KerberosRun.Domain);
                 cred.Domain = KerberosRun.Domain;
